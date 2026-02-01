@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Vaishnav Muriki - AI Engineer & Creative Developer Portfolio">
     <title>Vaishnav Muriki | Neural Interface</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- CORE VARIABLES --- */
         :root {
             --neon-blue: #00f3ff;
             --neon-purple: #bc13fe;
@@ -20,15 +17,13 @@
             --glass: rgba(10, 15, 20, 0.75);
         }
         
-        /* --- BASE STYLES --- */
         body {
             margin: 0;
             background-color: var(--bg-dark);
             color: white;
             font-family: 'Rajdhani', sans-serif;
             overflow-x: hidden;
-            cursor: none; /* Hides default cursor */
-            user-select: none;
+            cursor: none; /* Custom cursor */
         }
 
         /* --- CUSTOM CURSOR --- */
@@ -38,7 +33,7 @@
             border-radius: 50%;
             position: fixed; pointer-events: none; z-index: 9999;
             transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            transition: width 0.2s, height 0.2s;
             mix-blend-mode: difference;
         }
         #cursor-dot {
@@ -46,43 +41,38 @@
             border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999;
             transform: translate(-50%, -50%);
         }
-        /* Hover states for cursor */
-        body.hovering #cursor {
-            width: 50px; height: 50px;
-            background-color: rgba(0, 243, 255, 0.1);
-            border-color: var(--neon-green);
-        }
 
-        /* --- 3D CANVAS BACKGROUND --- */
+        /* --- 3D CANVAS --- */
         #canvas-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1;
             background: radial-gradient(circle at center, #11001c 0%, #000000 90%);
         }
 
-        /* --- TERMINAL WINDOW --- */
+        /* --- TERMINAL --- */
         .terminal-window {
             background: rgba(0, 0, 0, 0.9);
             border: 1px solid var(--neon-green);
             font-family: 'Share Tech Mono', monospace;
             padding: 20px;
             border-radius: 5px;
-            box-shadow: 0 0 20px rgba(10, 255, 10, 0.1);
+            box-shadow: 0 0 20px rgba(10, 255, 10, 0.2);
             margin-bottom: 2rem;
-            width: 100%; max-width: 800px;
+            max-width: 800px;
+            width: 100%;
         }
-        .terminal-output { color: #ccc; min-height: 100px; margin-bottom: 10px; white-space: pre-wrap; font-size: 0.9rem; }
+        .terminal-output { color: #ccc; min-height: 100px; margin-bottom: 10px; white-space: pre-wrap; }
         .terminal-input-line { display: flex; color: var(--neon-green); }
         .terminal-input { 
             background: transparent; border: none; color: var(--neon-green); 
             outline: none; flex-grow: 1; font-family: inherit; font-size: 1rem;
         }
 
-        /* --- 3D SKILL SPHERE --- */
-        .tagcloud { display: inline-block; font-family: 'Orbitron'; font-weight: bold; letter-spacing: 1px; }
-        .tagcloud--item { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); padding: 5px; transition: 0.3s; }
-        .tagcloud--item:hover { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); cursor: pointer; transform: scale(1.2); }
+        /* --- SKILL SPHERE (TagCloud) --- */
+        .tagcloud { display: inline-block; top: 0; left: 0; font-family: 'Orbitron'; font-weight: bold; letter-spacing: 1px; }
+        .tagcloud--item { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); padding: 5px; }
+        .tagcloud--item:hover { color: var(--neon-green); cursor: pointer; }
 
-        /* --- GLASS PANELS --- */
+        /* --- SECTIONS --- */
         .glass-panel {
             background: var(--glass); backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
@@ -90,13 +80,9 @@
             clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
             transition: 0.3s;
         }
-        .glass-panel:hover { 
-            border-color: var(--neon-purple); 
-            box-shadow: 0 0 25px rgba(188, 19, 254, 0.2); 
-            transform: translateY(-5px);
-        }
+        .glass-panel:hover { border-color: var(--neon-purple); box-shadow: 0 0 25px rgba(188, 19, 254, 0.2); }
 
-        /* --- GLITCH TEXT EFFECT --- */
+        /* --- GLITCH TEXT --- */
         .glitch { position: relative; color: white; }
         .glitch::before, .glitch::after {
             content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -112,7 +98,7 @@
             100% { clip: rect(20px, 9999px, 70px, 0); }
         }
 
-        /* --- SOUND BUTTON --- */
+        /* --- SOUND TOGGLE --- */
         .sound-toggle {
             position: fixed; bottom: 30px; right: 30px;
             width: 50px; height: 50px;
@@ -126,19 +112,6 @@
         }
         .sound-toggle:hover { background: var(--neon-blue); color: black; box-shadow: 0 0 20px var(--neon-blue); }
 
-        /* --- SCROLL BAR --- */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--neon-purple); }
-
-        /* Mobile Fixes */
-        @media(max-width: 768px) {
-            h1 { font-size: 2.5rem !important; }
-            .glass-panel { clip-path: none; border-radius: 10px; }
-            #cursor, #cursor-dot { display: none; } /* Disable custom cursor on touch */
-            body { cursor: auto; }
-        }
     </style>
 </head>
 <body>
@@ -153,36 +126,33 @@
     </div>
 
     <nav class="fixed top-0 w-full p-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/90 to-transparent">
-        <div class="text-xl md:text-2xl font-bold font-mono text-neon-blue tracking-widest">VM_SYSTEM_V3.0</div>
+        <div class="text-2xl font-bold font-mono text-neon-blue">VM_SYSTEM_V3.0</div>
         <div class="hidden md:flex gap-8">
-            <a href="#hero" class="hover:text-neon-green transition font-mono">[ MAIN ]</a>
             <a href="#terminal" class="hover:text-neon-green transition font-mono">[ TERMINAL ]</a>
             <a href="#projects" class="hover:text-neon-purple transition font-mono">[ MISSIONS ]</a>
+            <a href="#timeline" class="hover:text-neon-blue transition font-mono">[ TIMELINE ]</a>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 pt-32 pb-20 relative z-10">
 
-        <section id="hero" class="min-h-screen flex flex-col md:flex-row items-center justify-between">
-            <div class="md:w-1/2 z-20">
-                <p class="text-neon-green font-mono mb-2 animate-pulse">:: SYSTEM ONLINE :: LOGIN: ADMIN</p>
-                <h1 class="text-6xl md:text-8xl font-black mb-4 glitch" data-text="VAISHNAV MURIKI">VAISHNAV MURIKI</h1>
-                <h2 class="text-2xl md:text-3xl text-gray-400 mb-8 font-mono">
-                    <span id="typewriter"></span><span class="animate-ping">_</span>
-                </h2>
+        <section class="min-h-screen flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-1/2">
+                <p class="text-neon-green font-mono mb-2">Login: ADMIN // Status: ONLINE</p>
+                <h1 class="text-7xl font-black mb-4 glitch" data-text="VAISHNAV MURIKI">VAISHNAV MURIKI</h1>
+                <h2 class="text-3xl text-gray-400 mb-8 font-mono typing-effect">AI ENGINEER | CREATIVE CODER</h2>
                 
-                <div class="flex flex-wrap gap-4">
-                    <button onclick="document.getElementById('terminal-input').focus(); document.querySelector('#terminal').scrollIntoView({behavior: 'smooth'});" 
-                        class="border border-neon-green text-neon-green px-8 py-3 font-mono hover:bg-neon-green hover:text-black transition uppercase font-bold">
+                <div class="flex gap-4">
+                    <button onclick="document.getElementById('terminal-input').focus()" class="border border-neon-green text-neon-green px-8 py-3 font-mono hover:bg-neon-green hover:text-black transition uppercase">
                         <i class="fas fa-terminal"></i> Access Terminal
                     </button>
-                    <a href="#projects" class="border border-neon-purple text-neon-purple px-8 py-3 font-mono hover:bg-neon-purple hover:text-black transition uppercase font-bold">
-                        <i class="fas fa-rocket"></i> Launch Missions
+                    <a href="#projects" class="border border-neon-purple text-neon-purple px-8 py-3 font-mono hover:bg-neon-purple hover:text-black transition uppercase">
+                        <i class="fas fa-rocket"></i> Launch Projects
                     </a>
                 </div>
             </div>
 
-            <div class="md:w-1/2 h-[400px] md:h-[500px] flex items-center justify-center relative" id="skill-container">
+            <div class="md:w-1/2 h-[500px] flex items-center justify-center relative" id="skill-container">
                 </div>
         </section>
 
@@ -193,47 +163,47 @@
                     <span>usr: vaishnav_guest</span>
                 </div>
                 <div class="terminal-output" id="terminal-output">
-                    Welcome to the VaishnaV_OS Neural Link. <br>
-                    Type <span class="text-neon-green">'help'</span> to initialize protocols.<br><br>
+                    Welcome to the VaishnaV_OS. <br>
+                    Type <span class="text-neon-green">'help'</span> to see available commands.<br><br>
                 </div>
                 <div class="terminal-input-line">
-                    <span class="mr-2 text-neon-green">visitor@vm-portfolio:~$</span>
+                    <span class="mr-2">visitor@vm-portfolio:~$</span>
                     <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" spellcheck="false">
                 </div>
             </div>
         </section>
 
         <section id="timeline" class="py-20">
-            <h2 class="text-4xl font-bold mb-12 text-center text-neon-blue glitch" data-text="CAREER TRAJECTORY">CAREER TRAJECTORY</h2>
-            <div class="relative border-l-2 border-gray-700 ml-4 md:ml-1/2 space-y-12">
+            <h2 class="text-4xl font-bold mb-12 text-center text-neon-blue glitch" data-text="MISSION TIMELINE">MISSION TIMELINE</h2>
+            <div class="relative border-l-2 border-gray-700 ml-6 md:ml-1/2 space-y-12">
                 
-                <div class="relative pl-8 md:ml-12 group">
-                    <span class="absolute -left-[9px] md:-left-[41px] bg-black border-2 border-neon-blue w-4 h-4 md:w-6 md:h-6 rounded-full group-hover:bg-neon-blue transition"></span>
+                <div class="relative pl-8 md:ml-12">
+                    <span class="absolute -left-[41px] bg-black border-2 border-neon-blue w-6 h-6 rounded-full"></span>
                     <div class="glass-panel">
                         <span class="text-xs text-neon-blue font-mono border border-neon-blue px-2 py-1 rounded">JULY 2025</span>
-                        <h3 class="text-2xl font-bold mt-2 text-white">B.Tech Graduation</h3>
+                        <h3 class="text-2xl font-bold mt-2">B.Tech Graduation</h3>
                         <p class="text-gray-400">Malla Reddy University</p>
                         <p class="text-sm text-gray-500 mt-2">Specialization: Artificial Intelligence & Machine Learning</p>
                     </div>
                 </div>
 
-                <div class="relative pl-8 md:ml-12 group">
-                    <span class="absolute -left-[9px] md:-left-[41px] bg-black border-2 border-neon-green w-4 h-4 md:w-6 md:h-6 rounded-full group-hover:bg-neon-green transition"></span>
+                <div class="relative pl-8 md:ml-12">
+                    <span class="absolute -left-[41px] bg-black border-2 border-neon-green w-6 h-6 rounded-full"></span>
                     <div class="glass-panel">
                         <span class="text-xs text-neon-green font-mono border border-neon-green px-2 py-1 rounded">SUMMER 2025</span>
-                        <h3 class="text-2xl font-bold mt-2 text-white">AI & Green Skills Intern</h3>
+                        <h3 class="text-2xl font-bold mt-2">AI & Green Skills Intern</h3>
                         <p class="text-gray-400">Edunet Foundation</p>
                         <p class="text-sm text-gray-500 mt-2">Deployed AI models for sustainable energy optimization.</p>
                     </div>
                 </div>
 
-                <div class="relative pl-8 md:ml-12 group">
-                    <span class="absolute -left-[9px] md:-left-[41px] bg-black border-2 border-neon-purple w-4 h-4 md:w-6 md:h-6 rounded-full group-hover:bg-neon-purple transition"></span>
+                <div class="relative pl-8 md:ml-12">
+                    <span class="absolute -left-[41px] bg-black border-2 border-neon-purple w-6 h-6 rounded-full"></span>
                     <div class="glass-panel">
                         <span class="text-xs text-neon-purple font-mono border border-neon-purple px-2 py-1 rounded">2023</span>
-                        <h3 class="text-2xl font-bold mt-2 text-white">AWS Cloud Foundation</h3>
-                        <p class="text-gray-400">AWS Academy / AICTE</p>
-                        <p class="text-sm text-gray-500 mt-2">Certified in cloud infrastructure and deployment.</p>
+                        <h3 class="text-2xl font-bold mt-2">AWS Cloud Foundation</h3>
+                        <p class="text-gray-400">AICTE / AWS Academy</p>
+                        <p class="text-sm text-gray-500 mt-2">Certified in Cloud Infrastructure & Deployment.</p>
                     </div>
                 </div>
 
@@ -245,59 +215,46 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
-                    <div class="absolute top-4 right-4 text-neon-blue opacity-50 group-hover:opacity-100 transition">
+                    <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition text-neon-blue">
                         <i class="fas fa-external-link-alt"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-neon-blue mb-2 group-hover:translate-x-2 transition">EV Forecasting Engine</h3>
-                    <p class="text-sm text-gray-400 mb-4">Predicts Electric Vehicle adoption using Random Forest & Rolling Windows analytics.</p>
-                    <div class="flex flex-wrap gap-2 text-xs font-mono mt-auto">
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">Python</span>
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">Sklearn</span>
+                    <h3 class="text-xl font-bold text-neon-blue mb-2">EV Forecasting Engine</h3>
+                    <p class="text-sm text-gray-400 mb-4">Predicts Electric Vehicle adoption using Random Forest & Rolling Windows.</p>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">Python</span>
+                        <span class="bg-gray-800 px-2 py-1">Sklearn</span>
                     </div>
                 </div>
 
                 <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
-                    <div class="absolute top-4 right-4 text-neon-purple opacity-50 group-hover:opacity-100 transition">
-                        <i class="fas fa-external-link-alt"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-neon-purple mb-2 group-hover:translate-x-2 transition">Emotion Vision</h3>
-                    <p class="text-sm text-gray-400 mb-4">Real-time facial expression detection using CNNs and OpenCV (7 Emotions).</p>
-                    <div class="flex flex-wrap gap-2 text-xs font-mono mt-auto">
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">Keras</span>
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">Deep Learning</span>
+                    <h3 class="text-xl font-bold text-neon-purple mb-2">Emotion Vision</h3>
+                    <p class="text-sm text-gray-400 mb-4">Real-time facial expression detection using CNNs and OpenCV.</p>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">Keras</span>
+                        <span class="bg-gray-800 px-2 py-1">Deep Learning</span>
                     </div>
                 </div>
 
                 <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
-                    <div class="absolute top-4 right-4 text-neon-green opacity-50 group-hover:opacity-100 transition">
-                        <i class="fas fa-external-link-alt"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-neon-green mb-2 group-hover:translate-x-2 transition">Cinema RecSys</h3>
+                    <h3 class="text-xl font-bold text-neon-green mb-2">Cinema RecSys</h3>
                     <p class="text-sm text-gray-400 mb-4">Movie recommendation engine using Cosine Similarity on TMDB dataset.</p>
-                    <div class="flex flex-wrap gap-2 text-xs font-mono mt-auto">
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">NLP</span>
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">Streamlit</span>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">NLP</span>
+                        <span class="bg-gray-800 px-2 py-1">Streamlit</span>
                     </div>
                 </div>
 
-                <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
-                    <div class="absolute top-4 right-4 text-white opacity-50 group-hover:opacity-100 transition">
-                        <i class="fas fa-external-link-alt"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-2 group-hover:translate-x-2 transition">News Intel Bot</h3>
+                 <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
+                    <h3 class="text-xl font-bold text-white mb-2">News Intel Bot</h3>
                     <p class="text-sm text-gray-400 mb-4">Automated news summarizer and sentiment polarity analyzer.</p>
-                    <div class="flex flex-wrap gap-2 text-xs font-mono mt-auto">
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">TextBlob</span>
-                        <span class="bg-gray-800 border border-gray-600 px-2 py-1">Automation</span>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">TextBlob</span>
+                        <span class="bg-gray-800 px-2 py-1">Automation</span>
                     </div>
                 </div>
 
             </div>
         </section>
-
-        <footer class="text-center text-gray-600 font-mono text-xs pb-10">
-            SYSTEM ID: VM-2026 // ALL RIGHTS RESERVED
-        </footer>
 
     </main>
 
@@ -305,27 +262,9 @@
     <script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
 
     <script>
-        /* --- 1. TYPEWRITER EFFECT --- */
-        const text = "AI ENGINEER | GAME DEV | INNOVATOR";
-        const typewriterSpan = document.getElementById('typewriter');
-        let i = 0;
-        function typeWriter() {
-            if (i < text.length) {
-                typewriterSpan.innerHTML += text.charAt(i);
-                i++;
-                setTimeout(typeWriter, 100);
-            }
-        }
-        setTimeout(typeWriter, 1000);
-
-        /* --- 2. AUDIO SYSTEM --- */
+        /* --- 1. AUDIO SYSTEM (UI SOUNDS) --- */
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let isMuted = true;
-
-        // Unlock Audio Context on first interaction
-        window.addEventListener('click', () => {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        }, { once: true });
 
         function playSound(type) {
             if (isMuted) return;
@@ -356,23 +295,19 @@
             isMuted = !isMuted;
             const btn = document.getElementById('soundBtn');
             btn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-            if(!isMuted) playSound('click');
+            if(!isMuted) {
+                audioCtx.resume();
+                playSound('click');
+            }
         }
 
-        // Attach sounds to elements
-        const interactables = document.querySelectorAll('button, a, .glass-panel, .tagcloud--item');
-        interactables.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                document.body.classList.add('hovering');
-                playSound('hover');
-            });
-            el.addEventListener('mouseleave', () => {
-                document.body.classList.remove('hovering');
-            });
+        // Add sound to buttons
+        document.querySelectorAll('button, a, .glass-panel').forEach(el => {
+            el.addEventListener('mouseenter', () => playSound('hover'));
             el.addEventListener('click', () => playSound('click'));
         });
 
-        /* --- 3. CUSTOM CURSOR LOGIC --- */
+        /* --- 2. CUSTOM CURSOR --- */
         const cursor = document.getElementById('cursor');
         const dot = document.getElementById('cursor-dot');
 
@@ -390,7 +325,7 @@
             cursor.style.transform = "translate(-50%, -50%) scale(1)";
         });
 
-        /* --- 4. TERMINAL LOGIC --- */
+        /* --- 3. TERMINAL LOGIC --- */
         const input = document.getElementById('terminal-input');
         const output = document.getElementById('terminal-output');
 
@@ -403,9 +338,7 @@
                     response = "AVAILABLE COMMANDS:\n> projects - List all missions\n> skills   - Show tech stack\n> contact  - Get comms info\n> clear    - Clear screen";
                 } else if (command === 'projects') {
                     response = "LOADING PROJECTS...\n1. EV Forecasting [Python]\n2. Emotion Detector [Deep Learning]\n3. Cinema RecSys [NLP]";
-                    setTimeout(() => document.querySelector("#projects").scrollIntoView({behavior: 'smooth'}), 1000);
-                } else if (command === 'skills') {
-                     response = "SKILLS: Python, TensorFlow, PyTorch, React, SQL, AWS, Docker";
+                    setTimeout(() => window.location.href = "#projects", 1000);
                 } else if (command === 'contact') {
                     response = "EMAIL: vaishnav.muriki.work@gmail.com\nGITHUB: github.com/vaishpaaa";
                 } else if (command === 'clear') {
@@ -423,7 +356,7 @@
             }
         });
 
-        /* --- 5. 3D TAG CLOUD --- */
+        /* --- 4. 3D SKILL SPHERE (TagCloud) --- */
         const myTags = [
             'Python', 'TensorFlow', 'PyTorch', 'OpenCV',
             'Generative AI', 'NLP', 'React', 'Three.js',
@@ -431,28 +364,29 @@
             'Scikit-Learn', 'Keras', 'Oracle Cloud'
         ];
 
-        TagCloud('#skill-container', myTags, {
+        var tagCloud = TagCloud('#skill-container', myTags, {
             radius: 200,
             maxSpeed: 'normal',
             initSpeed: 'normal',
             direction: 135,
             keep: true
         });
+
+        // Color the cloud
         document.querySelector('.tagcloud').style.color = '#00f3ff';
 
-        /* --- 6. BACKGROUND STARFIELD (Three.js) --- */
+        /* --- 5. BACKGROUND THREE.JS --- */
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true });
-        
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
+        // Starfield
         const geometry = new THREE.BufferGeometry();
         const count = 2000;
         const positions = new Float32Array(count * 3);
         for(let i=0;i<count*3;i++) positions[i]=(Math.random()-0.5)*1000;
-        
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         const material = new THREE.PointsMaterial({color: 0xffffff, size: 2});
         const stars = new THREE.Points(geometry, material);
