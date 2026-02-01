@@ -23,7 +23,7 @@
             color: white;
             font-family: 'Rajdhani', sans-serif;
             overflow-x: hidden;
-            cursor: none; /* Custom cursor */
+            cursor: none;
         }
 
         /* --- CUSTOM CURSOR --- */
@@ -67,11 +67,6 @@
             outline: none; flex-grow: 1; font-family: inherit; font-size: 1rem;
         }
 
-        /* --- SKILL SPHERE (TagCloud) --- */
-        .tagcloud { display: inline-block; top: 0; left: 0; font-family: 'Orbitron'; font-weight: bold; letter-spacing: 1px; }
-        .tagcloud--item { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); padding: 5px; }
-        .tagcloud--item:hover { color: var(--neon-green); cursor: pointer; }
-
         /* --- SECTIONS --- */
         .glass-panel {
             background: var(--glass); backdrop-filter: blur(10px);
@@ -112,6 +107,10 @@
         }
         .sound-toggle:hover { background: var(--neon-blue); color: black; box-shadow: 0 0 20px var(--neon-blue); }
 
+        /* --- SKILL SPHERE --- */
+        .tagcloud { display: inline-block; font-family: 'Orbitron'; font-weight: bold; letter-spacing: 1px; }
+        .tagcloud--item { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); padding: 5px; }
+        .tagcloud--item:hover { color: var(--neon-green); cursor: pointer; }
     </style>
 </head>
 <body>
@@ -130,7 +129,7 @@
         <div class="hidden md:flex gap-8">
             <a href="#terminal" class="hover:text-neon-green transition font-mono">[ TERMINAL ]</a>
             <a href="#projects" class="hover:text-neon-purple transition font-mono">[ MISSIONS ]</a>
-            <a href="#timeline" class="hover:text-neon-blue transition font-mono">[ TIMELINE ]</a>
+            <a href="#contact" class="hover:text-neon-blue transition font-mono">[ COMMS ]</a>
         </div>
     </nav>
 
@@ -152,8 +151,7 @@
                 </div>
             </div>
 
-            <div class="md:w-1/2 h-[500px] flex items-center justify-center relative" id="skill-container">
-                </div>
+            <div class="md:w-1/2 h-[500px] flex items-center justify-center relative" id="skill-container"></div>
         </section>
 
         <section id="terminal" class="py-20 flex justify-center">
@@ -252,8 +250,41 @@
                         <span class="bg-gray-800 px-2 py-1">Automation</span>
                     </div>
                 </div>
-
             </div>
+        </section>
+
+        <section id="contact" class="py-20 text-center">
+            <h2 class="text-4xl font-bold mb-8 text-neon-blue glitch" data-text="OPEN CHANNEL">OPEN CHANNEL</h2>
+            <div class="flex flex-wrap justify-center gap-6">
+                
+                <a href="mailto:vaishnav.muriki.work@gmail.com" class="glass-panel hover:text-neon-green transition no-underline flex items-center gap-4">
+                    <i class="fas fa-envelope text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold text-sm">EMAIL TRANSMISSION</div>
+                        <div class="font-mono text-xs text-gray-400">vaishnav.muriki.work@gmail.com</div>
+                    </div>
+                </a>
+        
+                <a href="https://www.linkedin.com/in/vaishnav--m/" target="_blank" class="glass-panel hover:text-neon-blue transition no-underline flex items-center gap-4">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold text-sm">LINKEDIN PROFILE</div>
+                        <div class="font-mono text-xs text-gray-400">/in/vaishnav--m</div>
+                    </div>
+                </a>
+        
+                <a href="https://github.com/vaishpaaa" target="_blank" class="glass-panel hover:text-neon-purple transition no-underline flex items-center gap-4">
+                    <i class="fab fa-github text-2xl"></i>
+                    <div class="text-left">
+                        <div class="font-bold text-sm">CODE REPOSITORY</div>
+                        <div class="font-mono text-xs text-gray-400">@vaishpaaa</div>
+                    </div>
+                </a>
+        
+            </div>
+            <footer class="mt-20 text-gray-600 text-xs font-mono">
+                SYSTEM ID: VM-2026 // ALL RIGHTS RESERVED
+            </footer>
         </section>
 
     </main>
@@ -262,7 +293,7 @@
     <script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
 
     <script>
-        /* --- 1. AUDIO SYSTEM (UI SOUNDS) --- */
+        /* --- 1. AUDIO SYSTEM --- */
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let isMuted = true;
 
@@ -301,7 +332,6 @@
             }
         }
 
-        // Add sound to buttons
         document.querySelectorAll('button, a, .glass-panel').forEach(el => {
             el.addEventListener('mouseenter', () => playSound('hover'));
             el.addEventListener('click', () => playSound('click'));
@@ -340,7 +370,8 @@
                     response = "LOADING PROJECTS...\n1. EV Forecasting [Python]\n2. Emotion Detector [Deep Learning]\n3. Cinema RecSys [NLP]";
                     setTimeout(() => window.location.href = "#projects", 1000);
                 } else if (command === 'contact') {
-                    response = "EMAIL: vaishnav.muriki.work@gmail.com\nGITHUB: github.com/vaishpaaa";
+                    // UPDATED CONTACT DETAILS
+                    response = "EMAIL: vaishnav.muriki.work@gmail.com\nLINKEDIN: linkedin.com/in/vaishnav--m\nGITHUB: github.com/vaishpaaa\nPORTFOLIO: vaishpaaa.github.io";
                 } else if (command === 'clear') {
                     output.innerHTML = "";
                     this.value = "";
@@ -356,7 +387,7 @@
             }
         });
 
-        /* --- 4. 3D SKILL SPHERE (TagCloud) --- */
+        /* --- 4. 3D SKILL SPHERE --- */
         const myTags = [
             'Python', 'TensorFlow', 'PyTorch', 'OpenCV',
             'Generative AI', 'NLP', 'React', 'Three.js',
@@ -372,7 +403,6 @@
             keep: true
         });
 
-        // Color the cloud
         document.querySelector('.tagcloud').style.color = '#00f3ff';
 
         /* --- 5. BACKGROUND THREE.JS --- */
@@ -382,7 +412,6 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // Starfield
         const geometry = new THREE.BufferGeometry();
         const count = 2000;
         const positions = new Float32Array(count * 3);
