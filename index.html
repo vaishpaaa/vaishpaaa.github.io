@@ -3,264 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaishnav Muriki | AI Engineer Experience</title>
+    <title>Vaishnav Muriki | System Core</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
+        :root {
+            --primary: #00f3ff;
+            --secondary: #E07A5F;
+            --bg: #050505;
+        }
         body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            background-color: #000;
+            background-color: var(--bg);
             color: white;
             font-family: 'Rajdhani', sans-serif;
+            cursor: crosshair; /* Gaming crosshair cursor */
         }
 
-        /* The 3D Canvas Background */
-        #canvas-container {
+        /* --- LOADING SCREEN --- */
+        #loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            z-index: -1;
-            opacity: 0; /* Fade in on load */
-            transition: opacity 1s ease;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Share Tech Mono', monospace;
         }
-
-        /* Scroll Progress Bar */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .loader-text {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+        .loader-bar-bg {
+            width: 300px;
             height: 4px;
-            background: #00f3ff;
+            background: #333;
+            position: relative;
+        }
+        .loader-bar-fill {
+            height: 100%;
+            background: var(--primary);
             width: 0%;
-            z-index: 100;
-            box-shadow: 0 0 10px #00f3ff;
+            transition: width 0.2s;
+            box-shadow: 0 0 10px var(--primary);
         }
 
-        /* HUD Overlay Elements */
-        .hud-corner {
+        /* --- 3D CANVAS --- */
+        #canvas-container {
             position: fixed;
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            width: 100px;
-            height: 100px;
-            z-index: 50;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: -1;
+        }
+
+        /* --- HUD (Heads Up Display) --- */
+        .hud-ui {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+        .hud-top-left { top: 20px; left: 20px; border-left: 2px solid var(--primary); padding-left: 10px; }
+        .hud-bottom-right { bottom: 20px; right: 20px; text-align: right; border-right: 2px solid var(--primary); padding-right: 10px; }
+        .hud-velocity { bottom: 20px; left: 20px; font-size: 0.8rem; }
+        
+        .scan-line {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 243, 255, 0.02) 50%);
+            background-size: 100% 4px;
+            z-index: 90;
             pointer-events: none;
         }
-        .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
-        .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
-        /* The Content Sections */
+        /* --- SECTIONS & CARDS --- */
         .section {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             z-index: 10;
-            opacity: 0; /* Hidden by default, handled by GSAP */
-            transform: translateY(50px);
-            pointer-events: none; /* Let clicks pass through to canvas if needed */
+            padding: 2rem;
+            opacity: 0; /* Animated by GSAP */
         }
 
-        /* Visible content wrapper */
-        .content-box {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 243, 255, 0.2);
+        .glass-panel {
+            background: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 243, 255, 0.15);
             padding: 3rem;
-            max-width: 800px;
-            width: 90%;
-            border-left: 4px solid #00f3ff;
-            pointer-events: auto; /* Re-enable clicks for links */
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            clip-path: polygon(
+                20px 0, 100% 0, 
+                100% calc(100% - 20px), calc(100% - 20px) 100%, 
+                0 100%, 0 20px
+            );
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Decorative corner markers */
+        .glass-panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 20px; height: 2px; background: var(--primary);
+        }
+        .glass-panel::after {
+            content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 2px; background: var(--primary);
         }
 
-        h1, h2, h3 {
-            font-family: 'Orbitron', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+        
+        /* Glitch Hover Effect */
+        .glitch-text { position: relative; display: inline-block; }
+        .glitch-text:hover { animation: glitch-anim 0.3s infinite; color: var(--primary); }
+        
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
         }
 
-        .highlight {
-            color: #00f3ff;
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-        }
+        .highlight { color: var(--primary); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
+        .highlight-sec { color: var(--secondary); text-shadow: 0 0 8px rgba(224, 122, 95, 0.4); }
 
-        .skill-tag {
-            display: inline-block;
-            border: 1px solid #00f3ff;
-            color: #00f3ff;
-            padding: 5px 15px;
-            margin: 5px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-        .skill-tag:hover {
-            background: #00f3ff;
-            color: #000;
-            box-shadow: 0 0 15px #00f3ff;
-        }
+        /* Skill Bars */
+        .skill-container { margin-bottom: 15px; }
+        .skill-label { display: flex; justify-content: space-between; font-size: 0.9rem; color: #aaa; margin-bottom: 5px; }
+        .skill-bar-bg { width: 100%; height: 6px; background: #222; }
+        .skill-bar-fill { height: 100%; background: var(--primary); width: 0; transition: width 1.5s ease-out; box-shadow: 0 0 5px var(--primary); }
 
-        .btn-glitch {
+        /* Achievements/Trophies Grid */
+        .trophy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .trophy-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #333;
+            padding: 1.5rem;
+            text-align: center;
+            transition: 0.3s;
+        }
+        .trophy-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(224, 122, 95, 0.2);
+        }
+        .trophy-icon { font-size: 2rem; margin-bottom: 10px; color: var(--secondary); }
+
+        /* Buttons */
+        .cyber-btn {
             background: transparent;
-            border: 1px solid #fff;
-            color: #fff;
-            padding: 10px 30px;
-            font-family: 'Orbitron', sans-serif;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 30px;
+            font-family: 'Orbitron';
+            text-transform: uppercase;
             cursor: pointer;
             transition: 0.3s;
             text-decoration: none;
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-glitch:hover {
-            background: #fff;
-            color: #000;
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+        .cyber-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: var(--primary); transition: 0.3s; z-index: -1;
         }
+        .cyber-btn:hover { color: #000; box-shadow: 0 0 20px var(--primary); }
+        .cyber-btn:hover::before { left: 0; }
 
-        /* Scroll prompt animation */
-        .scroll-prompt {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255,255,255,0.5);
-            font-family: 'Orbitron';
-            font-size: 0.8rem;
-            animation: bounce 2s infinite;
-            z-index: 50;
-        }
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateX(-50%) translateY(0);}
-            40% {transform: translateX(-50%) translateY(-10px);}
-            60% {transform: translateX(-50%) translateY(-5px);}
-        }
-
-        /* Mobile specific adjustments */
+        /* Mobile Fixes */
         @media (max-width: 768px) {
-            .content-box { padding: 1.5rem; }
+            .glass-panel { padding: 1.5rem; clip-path: none; border: 1px solid var(--primary); }
             h1 { font-size: 2.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <div id="loader">
+        <div class="loader-text">INITIALIZING NEURAL LINK...</div>
+        <div class="loader-bar-bg"><div class="loader-bar-fill" id="loaderFill"></div></div>
+        <div style="margin-top: 10px; font-size: 0.8rem; color: #666;">v.2.0.26 SYSTEM CORE</div>
+    </div>
 
-    <div class="progress-bar" id="progressBar"></div>
-    <div class="hud-corner top-left"></div>
-    <div class="hud-corner bottom-right"></div>
-    <div class="scroll-prompt">INITIALIZING SYSTEM... SCROLL TO BEGIN</div>
+    <div id="canvas-container"></div>
+    <div class="scan-line"></div>
+
+    <div class="hud-ui hud-top-left">
+        <div>OP: VAISHNAV MURIKI</div>
+        <div style="font-size: 0.7rem; opacity: 0.7;">STATUS: ONLINE</div>
+    </div>
+    <div class="hud-ui hud-bottom-right">
+        <div>LOC: HYDERABAD</div>
+        <div id="coord-display">X:00 Y:00 Z:00</div>
+    </div>
+    <div class="hud-ui hud-velocity">VELOCITY: <span id="velocity-val">0</span> km/s</div>
 
     <main>
-        <section class="section" id="section-hero">
-            <div class="content-box text-center">
-                <p class="text-sm tracking-widest text-gray-400 mb-2">SYSTEM: ONLINE</p>
-                <h1 class="text-5xl md:text-7xl font-bold mb-4">Vaishnav <span class="highlight">Muriki</span></h1>
-                <h2 class="text-xl md:text-2xl text-gray-300 mb-8">AI & Machine Learning Engineer</h2>
-                <p class="text-lg text-gray-400">Building intelligent systems for the future.</p>
+        <section class="section" id="hero">
+            <div class="glass-panel text-center">
+                <p class="text-sm tracking-[0.5em] text-gray-500 mb-4">IDENTIFICATION VERIFIED</p>
+                <h1 class="text-5xl md:text-7xl font-bold mb-4 glitch-text">VAISHNAV <span class="highlight">MURIKI</span></h1>
+                <h2 class="text-xl md:text-3xl text-gray-300 mb-8 font-light">AI ENGINEER <span class="text-gray-600 mx-2">|</span> PYTHON DEV <span class="text-gray-600 mx-2">|</span> ARCHITECT</h2>
+                <div class="flex justify-center gap-4">
+                    <a href="#projects" class="cyber-btn">INITIATE PROJECTS</a>
+                </div>
             </div>
         </section>
 
-        <section class="section" id="section-about">
-            <div class="content-box">
-                <h2 class="text-3xl font-bold mb-6"><span class="highlight">01.</span> The Architect</h2>
-                <div class="flex flex-col md:flex-row gap-8 items-center">
-                    <div class="md:w-3/4">
-                        <p class="text-lg leading-relaxed mb-4">
-                            I am a B.Tech graduate in <span class="highlight">AI & Machine Learning</span> from Malla Reddy University. 
-                            I don't just write code; I design logic that learns.
+        <section class="section">
+            <div class="glass-panel">
+                <h2 class="text-3xl font-bold mb-8 glitch-text"><span class="highlight">01.</span> CORE PHILOSOPHY</h2>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-lg leading-relaxed mb-6">
+                            I am a graduate of <span class="highlight">Malla Reddy University</span> (Class of '25). My mission is not just to write code, but to create <span class="highlight-sec">human-centric AI</span>.
                         </p>
-                        <p class="text-lg leading-relaxed text-gray-400">
-                            Passionate about Game Development using Python and creating human-like AI interactions. My goal is to bridge the gap between biological intelligence and silicon processing.
+                        <p class="text-gray-400 mb-6">
+                            Whether it's distinguishing rejection emails from job offers or building immersive game worlds in Python, I believe technology should feel organic, responsive, and alive.
                         </p>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="section-skills">
-            <div class="content-box">
-                <h2 class="text-3xl font-bold mb-6"><span class="highlight">02.</span> Tech Stack</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-xl mb-3 text-gray-300">Core Intelligence</h3>
-                        <div class="flex flex-wrap">
-                            <span class="skill-tag">Python</span>
-                            <span class="skill-tag">Machine Learning</span>
-                            <span class="skill-tag">Deep Learning</span>
-                            <span class="skill-tag">NLP</span>
+                    <div class="border border-gray-700 p-6 bg-black/40">
+                        <h3 class="text-sm text-gray-400 mb-4 tracking-widest">SYSTEM SPECS</h3>
+                        <div class="skill-container">
+                            <div class="skill-label"><span>Python / AI Logic</span><span>95%</span></div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 95%"></div></div>
                         </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl mb-3 text-gray-300">Frameworks</h3>
-                        <div class="flex flex-wrap">
-                            <span class="skill-tag">TensorFlow</span>
-                            <span class="skill-tag">PyTorch</span>
-                            <span class="skill-tag">Scikit-Learn</span>
-                            <span class="skill-tag">OpenCV</span>
+                        <div class="skill-container">
+                            <div class="skill-label"><span>Machine Learning (TensorFlow/PyTorch)</span><span>90%</span></div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 90%"></div></div>
                         </div>
-                    </div>
-                    <div>
-                        <h3 class="text-xl mb-3 text-gray-300">Tools</h3>
-                        <div class="flex flex-wrap">
-                            <span class="skill-tag">Git</span>
-                            <span class="skill-tag">Docker</span>
-                            <span class="skill-tag">Google Vertex AI</span>
-                            <span class="skill-tag">AWS</span>
+                        <div class="skill-container">
+                            <div class="skill-label"><span>Game Dev / Physics</span><span>85%</span></div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 85%"></div></div>
+                        </div>
+                        <div class="skill-container">
+                            <div class="skill-label"><span>Generative AI / LLMs</span><span>88%</span></div>
+                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 88%"></div></div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="section" id="section-proj1">
-            <div class="content-box">
-                <h2 class="text-3xl font-bold mb-4"><span class="highlight">03.</span> Project: News Classifier</h2>
-                <p class="text-sm text-gray-400 mb-4">NATURAL LANGUAGE PROCESSING // BERT MODEL</p>
-                <p class="mb-4">
-                    Leveraged the power of Transformer models to classify news articles into sports, politics, and technology with high precision.
-                </p>
-                <ul class="list-disc list-inside text-gray-300 mb-6 space-y-2">
-                    <li>Reduced manual categorization time by <span class="highlight">40%</span>.</li>
-                    <li>Utilized Hugging Face Transformers & PyTorch.</li>
-                </ul>
-                <a href="https://github.com/vaishpaaa" target="_blank" class="btn-glitch">Access Codebase</a>
-            </div>
-        </section>
-
-        <section class="section" id="section-proj2">
-            <div class="content-box">
-                <h2 class="text-3xl font-bold mb-4"><span class="highlight">04.</span> Project: Vertex AI Prompts</h2>
-                <p class="text-sm text-gray-400 mb-4">GENERATIVE AI // GOOGLE CLOUD</p>
-                <p class="mb-4">
-                    Deep dive into prompt engineering for Large Language Models (LLMs) to optimize text summarization and creative content generation.
-                </p>
-                <a href="https://github.com/vaishpaaa" target="_blank" class="btn-glitch">View Analysis</a>
-            </div>
-        </section>
-
-        <section class="section" id="section-contact">
-            <div class="content-box text-center">
-                <h2 class="text-4xl font-bold mb-6">Initialize Communication</h2>
-                <p class="text-xl text-gray-300 mb-8">Ready to build the next generation of AI?</p>
+        <section class="section" id="projects">
+            <div class="glass-panel">
+                <h2 class="text-3xl font-bold mb-8 glitch-text"><span class="highlight">02.</span> MISSION LOGS</h2>
                 
-                <div class="flex flex-col md:flex-row justify-center gap-6">
-                    <a href="mailto:vaishnav.muriki.work@gmail.com" class="btn-glitch">Email Link</a>
-                    <a href="https://www.linkedin.com/in/vaishnav--m/" target="_blank" class="btn-glitch">LinkedIn Database</a>
-                    <a href="https://github.com/vaishpaaa" target="_blank" class="btn-glitch">GitHub Repository</a>
+                <div class="mb-12 border-l-2 border-[#E07A5F] pl-6 hover:bg-white/5 transition p-4">
+                    <h3 class="text-2xl font-bold text-white mb-2">Project: AI Email Sorter Bot</h3>
+                    <p class="text-xs text-[#E07A5F] mb-3">AUTOMATION // NLP // PRODUCTIVITY</p>
+                    <p class="text-gray-400 mb-4">
+                        An intelligent agent that intercepts incoming emails and segments them into three critical buckets: <span class="text-white">Job Offers/Interviews</span>, <span class="text-white">Rejections</span>, and <span class="text-white">Fraud/Spam</span>.
+                    </p>
+                    <div class="flex gap-2">
+                        <span class="text-xs border border-gray-600 px-2 py-1">Python</span>
+                        <span class="text-xs border border-gray-600 px-2 py-1">Gmail API</span>
+                        <span class="text-xs border border-gray-600 px-2 py-1">NLP</span>
+                    </div>
                 </div>
+
+                <div class="mb-12 border-l-2 border-[#00f3ff] pl-6 hover:bg-white/5 transition p-4">
+                    <h3 class="text-2xl font-bold text-white mb-2">Project: News Classifier (BERT)</h3>
+                    <p class="text-xs text-[#00f3ff] mb-3">DEEP LEARNING // TRANSFORMERS</p>
+                    <p class="text-gray-400 mb-4">
+                        A high-precision text classification system utilizing the BERT architecture to categorize news streams into Sports, Politics, and Tech with 98% accuracy.
+                    </p>
+                    <a href="https://github.com/vaishpaaa" class="text-[#00f3ff] text-sm hover:underline">> ACCESS SOURCE CODE</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="glass-panel">
+                <h2 class="text-3xl font-bold mb-2 glitch-text"><span class="highlight">03.</span> ACHIEVEMENTS</h2>
+                <p class="text-gray-400 mb-8">CERTIFICATIONS & ACCOLADES UNLOCKED</p>
                 
-                <footer class="mt-12 text-sm text-gray-500">
-                    © 2026 Vaishnav Muriki. System All Systems Nominal.
-                </footer>
+                <div class="trophy-grid">
+                    <div class="trophy-card">
+                        <div class="trophy-icon">🎓</div>
+                        <h4 class="font-bold">B.Tech Graduate</h4>
+                        <p class="text-xs text-gray-500 mt-2">Malla Reddy University</p>
+                        <p class="text-xs text-[#E07A5F]">July 2025</p>
+                    </div>
+                    <div class="trophy-card">
+                        <div class="trophy-icon">📜</div>
+                        <h4 class="font-bold">NxtWave Intensive</h4>
+                        <p class="text-xs text-gray-500 mt-2">Industry 4.0 Tech Stack</p>
+                        <p class="text-xs text-[#E07A5F]">Completed</p>
+                    </div>
+                    <div class="trophy-card">
+                        <div class="trophy-icon">💻</div>
+                        <h4 class="font-bold">AI Intern</h4>
+                        <p class="text-xs text-gray-500 mt-2">Edunet Foundation</p>
+                        <p class="text-xs text-[#E07A5F]">Summer 2025</p>
+                    </div>
+                    <div class="trophy-card border-dashed">
+                        <div class="trophy-icon text-gray-600">?</div>
+                        <h4 class="font-bold text-gray-500">Next Achievement</h4>
+                        <p class="text-xs text-gray-500 mt-2">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="glass-panel text-center">
+                <h2 class="text-4xl font-bold mb-6 text-white">ESTABLISH UPLINK</h2>
+                <p class="text-gray-400 mb-8 max-w-lg mx-auto">
+                    Currently available for full-time roles in AI & Machine Learning. 
+                    Let's build the future together.
+                </p>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <a href="mailto:vaishnav.muriki.work@gmail.com" class="cyber-btn">SEND TRANSMISSION</a>
+                    <a href="https://www.linkedin.com/in/vaishnav--m/" target="_blank" class="cyber-btn">LINKEDIN</a>
+                    <a href="https://github.com/vaishpaaa" target="_blank" class="cyber-btn">GITHUB</a>
+                    <a href="https://vaishpaaa.github.io/" target="_blank" class="cyber-btn">PORTFOLIO</a>
+                </div>
+                <div class="mt-12 text-xs text-gray-600 font-mono">
+                    SYSTEM ID: VM-2026 // ALL RIGHTS RESERVED
+                </div>
             </div>
         </section>
     </main>
@@ -270,166 +347,145 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <script>
-        // --- 1. SETUP THREE.JS SCENE ---
-        const scene = new THREE.Scene();
-        // Add subtle fog to hide the "end" of the world
-        scene.fog = new THREE.FogExp2(0x000000, 0.0015);
-
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        // --- 1. LOADING SCREEN LOGIC ---
+        const loaderFill = document.getElementById('loaderFill');
+        const loader = document.getElementById('loader');
         
+        let loadProgress = 0;
+        const loadInterval = setInterval(() => {
+            loadProgress += Math.random() * 5;
+            if(loadProgress >= 100) {
+                loadProgress = 100;
+                clearInterval(loadInterval);
+                // Hide loader
+                gsap.to(loader, {
+                    opacity: 0,
+                    duration: 1,
+                    onComplete: () => loader.style.display = 'none'
+                });
+            }
+            loaderFill.style.width = loadProgress + "%";
+        }, 30);
+
+        // --- 2. THREE.JS SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.002); // Darker fog for cyber look
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimize for performance
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // --- 2. CREATE OBJECTS (THE "DATA UNIVERSE") ---
+        // --- 3. OBJECTS ---
+        
+        // A. The Cyber Grid Floor
+        const gridHelper = new THREE.GridHelper(200, 50, 0x00f3ff, 0x111111);
+        gridHelper.position.y = -10;
+        gridHelper.scale.set(4, 1, 4);
+        scene.add(gridHelper);
 
-        // A. The Starfield/Data Particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 3000;
+        // B. Ceiling Grid (Mirror)
+        const gridHelperTop = new THREE.GridHelper(200, 50, 0xE07A5F, 0x111111);
+        gridHelperTop.position.y = 10;
+        gridHelperTop.scale.set(4, 1, 4);
+        scene.add(gridHelperTop);
+
+        // C. Floating Particles
+        const particlesGeo = new THREE.BufferGeometry();
+        const particlesCount = 2000;
         const posArray = new Float32Array(particlesCount * 3);
-
-        for(let i = 0; i < particlesCount * 3; i++) {
-            // Spread particles far along the Z axis (tunnel depth)
-            if (i % 3 === 2) { 
-                posArray[i] = (Math.random() - 0.5) * 1000; // Z axis depth
-            } else {
-                posArray[i] = (Math.random() - 0.5) * 100; // X and Y spread
-            }
+        
+        for(let i=0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 300; // Wide spread
         }
-
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.15,
-            color: 0x00f3ff,
-            transparent: true,
-            opacity: 0.8,
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMat = new THREE.PointsMaterial({
+            size: 0.2, color: 0xffffff, transparent: true, opacity: 0.8
         });
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
+        const starField = new THREE.Points(particlesGeo, particlesMat);
+        scene.add(starField);
 
-        // B. Geometric "Data Blocks" floating around
+        // D. Floating Geometry (Abstract Data Blocks)
         const geometryGroup = new THREE.Group();
         const boxGeo = new THREE.BoxGeometry(1, 1, 1);
         const edgesGeo = new THREE.EdgesGeometry(boxGeo);
-        
-        for (let i = 0; i < 50; i++) {
-            // Wireframe cubes
-            const material = new THREE.LineBasicMaterial({ color: 0xE07A5F, transparent: true, opacity: 0.3 });
+
+        for (let i = 0; i < 30; i++) {
+            const material = new THREE.LineBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.4 });
             const mesh = new THREE.LineSegments(edgesGeo, material);
-            
-            mesh.position.x = (Math.random() - 0.5) * 60;
-            mesh.position.y = (Math.random() - 0.5) * 40;
-            mesh.position.z = (Math.random() - 0.5) * 800;
-            
-            mesh.rotation.x = Math.random() * Math.PI;
-            mesh.rotation.y = Math.random() * Math.PI;
-            
-            // Random scale
-            const scale = Math.random() * 2;
-            mesh.scale.set(scale, scale, scale);
-            
+            mesh.position.set(
+                (Math.random() - 0.5) * 40,
+                (Math.random() - 0.5) * 20,
+                (Math.random() - 0.5) * 400 - 100 // Mostly in front
+            );
+            mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
             geometryGroup.add(mesh);
         }
         scene.add(geometryGroup);
 
-        // Initial Camera Position
-        camera.position.z = 20;
+        camera.position.z = 10;
 
-        // --- 3. ANIMATION LOOP ---
+        // --- 4. ANIMATION & SCROLL ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // HUD Elements Update
+        const coordDisplay = document.getElementById('coord-display');
+        const velDisplay = document.getElementById('velocity-val');
+        let lastScrollTop = 0;
+
+        // Render Loop
         const clock = new THREE.Clock();
-        
-        // Mouse interaction for parallax
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
-        });
-
         const tick = () => {
-            const elapsedTime = clock.getElapsedTime();
-
-            // Rotate entire particle system slowly
-            particlesMesh.rotation.z = elapsedTime * 0.05;
-            geometryGroup.rotation.z = elapsedTime * 0.02;
-
-            // Mouse Parallax effect
-            targetX = mouseX * 0.001;
-            targetY = mouseY * 0.001;
+            const time = clock.getElapsedTime();
             
-            particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
-            particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+            // Move grid to simulate infinite forward motion
+            const gridSpeed = 0.5;
+            gridHelper.position.z = (time * 5) % 4; // Loop position
+            gridHelperTop.position.z = (time * 5) % 4;
+
+            // Rotate objects
+            geometryGroup.rotation.z = time * 0.1;
+            starField.rotation.z = time * 0.05;
+
+            // HUD Random Numbers
+            if(Math.random() > 0.9) {
+                coordDisplay.innerText = `X:${Math.floor(Math.random()*99)} Y:${Math.floor(Math.random()*99)} Z:${Math.floor(camera.position.z)}`;
+            }
 
             renderer.render(scene, camera);
             window.requestAnimationFrame(tick);
         }
         tick();
 
-        // --- 4. SCROLL INTERACTION (GSAP) ---
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Show canvas
-        gsap.to('#canvas-container', { opacity: 1, duration: 2 });
-
-        // Update Progress Bar
-        window.addEventListener('scroll', () => {
-            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            const scrolled = (winScroll / height) * 100;
-            document.getElementById("progressBar").style.width = scrolled + "%";
-            
-            // Hide scroll prompt on scroll
-            if(scrolled > 2) {
-                document.querySelector('.scroll-prompt').style.opacity = 0;
-            }
-        });
-
-        // ANIMATE SECTIONS
-        // We will move the camera continuously forward as we scroll
-        // and fade content in/out
-        
+        // Scroll Animations
         const sections = document.querySelectorAll('.section');
         
+        // Update velocity meter based on scroll speed
+        window.addEventListener('scroll', () => {
+            const st = window.pageYOffset || document.documentElement.scrollTop;
+            const speed = Math.abs(st - lastScrollTop);
+            velDisplay.innerText = speed;
+            lastScrollTop = st;
+        });
+
         sections.forEach((section, index) => {
-            // Content Fade In/Up
-            gsap.to(section, {
+            // 1. Fade Content In
+            gsap.to(section.querySelector('.glass-panel'), {
                 opacity: 1,
                 y: 0,
                 duration: 1,
                 scrollTrigger: {
                     trigger: section,
-                    start: "top 60%",
+                    start: "top 70%",
                     end: "bottom 40%",
                     toggleActions: "play reverse play reverse",
-                    // markers: true // Remove comment to debug
                 }
             });
 
-            // Camera Movement based on scroll
-            // We map the scroll of the whole page to the Camera Z position
-            // Moving deeply into the screen (negative Z)
+            // 2. Fly Camera Forward
             gsap.to(camera.position, {
-                z: -50 * (index + 1), // Move 50 units deep per section
+                z: -50 * (index + 1), 
                 ease: "none",
-                scrollTrigger: {
-                    trigger: section,
-                    start: "top bottom",
-                    end: "bottom top",
-                    scrub: 1 // Smooth scrubbing effect (like a video)
-                }
-            });
-            
-            // Also rotate the camera slightly for dynamic feel
-            gsap.to(camera.rotation, {
-                z: (index % 2 === 0 ? 0.1 : -0.1), // Tilt left/right alternately
-                ease: "power1.inOut",
                 scrollTrigger: {
                     trigger: section,
                     start: "top bottom",
@@ -439,13 +495,12 @@
             });
         });
 
-        // Resize Handler
+        // Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
     </script>
 </body>
 </html>
