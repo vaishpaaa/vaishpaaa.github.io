@@ -3,59 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaishnav Muriki | System Core</title>
+    <title>Vaishnav Muriki | Galactic Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #00f3ff;
-            --secondary: #E07A5F;
-            --bg: #050505;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-gold: #fcee0a;
+            --bg-dark: #050505;
         }
         body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            background-color: var(--bg);
+            background-color: var(--bg-dark);
             color: white;
             font-family: 'Rajdhani', sans-serif;
-            cursor: crosshair; /* Gaming crosshair cursor */
-        }
-
-        /* --- LOADING SCREEN --- */
-        #loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Share Tech Mono', monospace;
-        }
-        .loader-text {
-            color: var(--primary);
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px var(--primary);
-        }
-        .loader-bar-bg {
-            width: 300px;
-            height: 4px;
-            background: #333;
-            position: relative;
-        }
-        .loader-bar-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.2s;
-            box-shadow: 0 0 10px var(--primary);
+            cursor: crosshair; 
         }
 
         /* --- 3D CANVAS --- */
@@ -63,283 +29,304 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100vh;
             z-index: -1;
+            background: radial-gradient(circle at center, #1a0b2e 0%, #000000 70%);
         }
 
-        /* --- HUD (Heads Up Display) --- */
+        /* --- HUD UI --- */
         .hud-ui {
             position: fixed;
             z-index: 100;
             pointer-events: none;
             font-family: 'Share Tech Mono', monospace;
-            color: var(--primary);
             text-transform: uppercase;
         }
-        .hud-top-left { top: 20px; left: 20px; border-left: 2px solid var(--primary); padding-left: 10px; }
-        .hud-bottom-right { bottom: 20px; right: 20px; text-align: right; border-right: 2px solid var(--primary); padding-right: 10px; }
-        .hud-velocity { bottom: 20px; left: 20px; font-size: 0.8rem; }
-        
-        .scan-line {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 243, 255, 0.02) 50%);
-            background-size: 100% 4px;
-            z-index: 90;
-            pointer-events: none;
+        .mission-timer {
+            top: 20px; right: 20px;
+            color: var(--neon-gold);
+            border: 1px solid var(--neon-gold);
+            padding: 5px 15px;
+            background: rgba(252, 238, 10, 0.1);
+        }
+        .sector-indicator {
+            bottom: 20px; left: 20px;
+            color: var(--neon-blue);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
         }
 
-        /* --- SECTIONS & CARDS --- */
-        .section {
+        /* --- SECTIONS (LEVELS) --- */
+        .level-section {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             z-index: 10;
+            padding: 4rem 1rem;
+        }
+
+        /* --- TREASURE CHEST / CARDS --- */
+        .data-crate {
+            background: rgba(10, 10, 16, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 2rem;
-            opacity: 0; /* Animated by GSAP */
-        }
-
-        .glass-panel {
-            background: rgba(10, 10, 12, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 243, 255, 0.15);
-            padding: 3rem;
-            max-width: 900px;
-            width: 100%;
-            position: relative;
-            clip-path: polygon(
-                20px 0, 100% 0, 
-                100% calc(100% - 20px), calc(100% - 20px) 100%, 
-                0 100%, 0 20px
-            );
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* Decorative corner markers */
-        .glass-panel::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 20px; height: 2px; background: var(--primary);
-        }
-        .glass-panel::after {
-            content: ''; position: absolute; bottom: 0; right: 0; width: 20px; height: 2px; background: var(--primary);
-        }
-
-        h1, h2, h3 { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
-        
-        /* Glitch Hover Effect */
-        .glitch-text { position: relative; display: inline-block; }
-        .glitch-text:hover { animation: glitch-anim 0.3s infinite; color: var(--primary); }
-        
-        @keyframes glitch-anim {
-            0% { transform: translate(0) }
-            20% { transform: translate(-2px, 2px) }
-            40% { transform: translate(-2px, -2px) }
-            60% { transform: translate(2px, 2px) }
-            80% { transform: translate(2px, -2px) }
-            100% { transform: translate(0) }
-        }
-
-        .highlight { color: var(--primary); text-shadow: 0 0 8px rgba(0, 243, 255, 0.4); }
-        .highlight-sec { color: var(--secondary); text-shadow: 0 0 8px rgba(224, 122, 95, 0.4); }
-
-        /* Skill Bars */
-        .skill-container { margin-bottom: 15px; }
-        .skill-label { display: flex; justify-content: space-between; font-size: 0.9rem; color: #aaa; margin-bottom: 5px; }
-        .skill-bar-bg { width: 100%; height: 6px; background: #222; }
-        .skill-bar-fill { height: 100%; background: var(--primary); width: 0; transition: width 1.5s ease-out; box-shadow: 0 0 5px var(--primary); }
-
-        /* Achievements/Trophies Grid */
-        .trophy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .trophy-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #333;
-            padding: 1.5rem;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .trophy-card:hover {
-            border-color: var(--secondary);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(224, 122, 95, 0.2);
-        }
-        .trophy-icon { font-size: 2rem; margin-bottom: 10px; color: var(--secondary); }
-
-        /* Buttons */
-        .cyber-btn {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 12px 30px;
-            font-family: 'Orbitron';
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 1rem;
             position: relative;
             overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
         }
-        .cyber-btn::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: var(--primary); transition: 0.3s; z-index: -1;
+        
+        .data-crate::before {
+            content: "LOCKED // HOVER TO DECRYPT";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-blue);
+            font-family: 'Orbitron';
+            letter-spacing: 2px;
+            z-index: 20;
+            transition: 0.5s;
+            text-align: center;
+            border: 1px solid var(--neon-blue);
         }
-        .cyber-btn:hover { color: #000; box-shadow: 0 0 20px var(--primary); }
-        .cyber-btn:hover::before { left: 0; }
 
-        /* Mobile Fixes */
-        @media (max-width: 768px) {
-            .glass-panel { padding: 1.5rem; clip-path: none; border: 1px solid var(--primary); }
-            h1 { font-size: 2.5rem; }
+        .data-crate:hover::before {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
         }
+
+        .data-crate:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.3);
+        }
+
+        /* Specific Crate Colors */
+        .crate-gold:hover { border-color: var(--neon-gold); box-shadow: 0 0 30px rgba(252, 238, 10, 0.3); }
+        .crate-blue:hover { border-color: var(--neon-blue); box-shadow: 0 0 30px rgba(0, 243, 255, 0.3); }
+
+        /* --- TYPOGRAPHY --- */
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; text-transform: uppercase; }
+        .glitch-text { color: white; text-shadow: 2px 2px var(--neon-purple), -2px -2px var(--neon-blue); }
+        
+        .highlight-gold { color: var(--neon-gold); }
+        .highlight-purple { color: var(--neon-purple); }
+        .highlight-blue { color: var(--neon-blue); }
+
+        /* --- BUTTONS --- */
+        .warp-btn {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+            border: none;
+            padding: 15px 40px;
+            color: white;
+            font-family: 'Orbitron';
+            font-weight: bold;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-block;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .warp-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        /* --- GRID LAYOUTS --- */
+        .mission-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; max-width: 1200px; }
+        .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; width: 100%; max-width: 1200px; }
+
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-text">INITIALIZING NEURAL LINK...</div>
-        <div class="loader-bar-bg"><div class="loader-bar-fill" id="loaderFill"></div></div>
-        <div style="margin-top: 10px; font-size: 0.8rem; color: #666;">v.2.0.26 SYSTEM CORE</div>
-    </div>
-
     <div id="canvas-container"></div>
-    <div class="scan-line"></div>
 
-    <div class="hud-ui hud-top-left">
-        <div>OP: VAISHNAV MURIKI</div>
-        <div style="font-size: 0.7rem; opacity: 0.7;">STATUS: ONLINE</div>
-    </div>
-    <div class="hud-ui hud-bottom-right">
-        <div>LOC: HYDERABAD</div>
-        <div id="coord-display">X:00 Y:00 Z:00</div>
-    </div>
-    <div class="hud-ui hud-velocity">VELOCITY: <span id="velocity-val">0</span> km/s</div>
+    <div class="hud-ui mission-timer">MISSION TIME: <span id="timer">00:00</span></div>
+    <div class="hud-ui sector-indicator">CURRENT SECTOR: <span id="sector-name">HOME BASE</span></div>
 
     <main>
-        <section class="section" id="hero">
-            <div class="glass-panel text-center">
-                <p class="text-sm tracking-[0.5em] text-gray-500 mb-4">IDENTIFICATION VERIFIED</p>
-                <h1 class="text-5xl md:text-7xl font-bold mb-4 glitch-text">VAISHNAV <span class="highlight">MURIKI</span></h1>
-                <h2 class="text-xl md:text-3xl text-gray-300 mb-8 font-light">AI ENGINEER <span class="text-gray-600 mx-2">|</span> PYTHON DEV <span class="text-gray-600 mx-2">|</span> ARCHITECT</h2>
-                <div class="flex justify-center gap-4">
-                    <a href="#projects" class="cyber-btn">INITIATE PROJECTS</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="glass-panel">
-                <h2 class="text-3xl font-bold mb-8 glitch-text"><span class="highlight">01.</span> CORE PHILOSOPHY</h2>
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <p class="text-lg leading-relaxed mb-6">
-                            I am a graduate of <span class="highlight">Malla Reddy University</span> (Class of '25). My mission is not just to write code, but to create <span class="highlight-sec">human-centric AI</span>.
-                        </p>
-                        <p class="text-gray-400 mb-6">
-                            Whether it's distinguishing rejection emails from job offers or building immersive game worlds in Python, I believe technology should feel organic, responsive, and alive.
-                        </p>
-                    </div>
-                    <div class="border border-gray-700 p-6 bg-black/40">
-                        <h3 class="text-sm text-gray-400 mb-4 tracking-widest">SYSTEM SPECS</h3>
-                        <div class="skill-container">
-                            <div class="skill-label"><span>Python / AI Logic</span><span>95%</span></div>
-                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 95%"></div></div>
-                        </div>
-                        <div class="skill-container">
-                            <div class="skill-label"><span>Machine Learning (TensorFlow/PyTorch)</span><span>90%</span></div>
-                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 90%"></div></div>
-                        </div>
-                        <div class="skill-container">
-                            <div class="skill-label"><span>Game Dev / Physics</span><span>85%</span></div>
-                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 85%"></div></div>
-                        </div>
-                        <div class="skill-container">
-                            <div class="skill-label"><span>Generative AI / LLMs</span><span>88%</span></div>
-                            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width: 88%"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="projects">
-            <div class="glass-panel">
-                <h2 class="text-3xl font-bold mb-8 glitch-text"><span class="highlight">02.</span> MISSION LOGS</h2>
-                
-                <div class="mb-12 border-l-2 border-[#E07A5F] pl-6 hover:bg-white/5 transition p-4">
-                    <h3 class="text-2xl font-bold text-white mb-2">Project: AI Email Sorter Bot</h3>
-                    <p class="text-xs text-[#E07A5F] mb-3">AUTOMATION // NLP // PRODUCTIVITY</p>
-                    <p class="text-gray-400 mb-4">
-                        An intelligent agent that intercepts incoming emails and segments them into three critical buckets: <span class="text-white">Job Offers/Interviews</span>, <span class="text-white">Rejections</span>, and <span class="text-white">Fraud/Spam</span>.
-                    </p>
-                    <div class="flex gap-2">
-                        <span class="text-xs border border-gray-600 px-2 py-1">Python</span>
-                        <span class="text-xs border border-gray-600 px-2 py-1">Gmail API</span>
-                        <span class="text-xs border border-gray-600 px-2 py-1">NLP</span>
-                    </div>
-                </div>
-
-                <div class="mb-12 border-l-2 border-[#00f3ff] pl-6 hover:bg-white/5 transition p-4">
-                    <h3 class="text-2xl font-bold text-white mb-2">Project: News Classifier (BERT)</h3>
-                    <p class="text-xs text-[#00f3ff] mb-3">DEEP LEARNING // TRANSFORMERS</p>
-                    <p class="text-gray-400 mb-4">
-                        A high-precision text classification system utilizing the BERT architecture to categorize news streams into Sports, Politics, and Tech with 98% accuracy.
-                    </p>
-                    <a href="https://github.com/vaishpaaa" class="text-[#00f3ff] text-sm hover:underline">> ACCESS SOURCE CODE</a>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="glass-panel">
-                <h2 class="text-3xl font-bold mb-2 glitch-text"><span class="highlight">03.</span> ACHIEVEMENTS</h2>
-                <p class="text-gray-400 mb-8">CERTIFICATIONS & ACCOLADES UNLOCKED</p>
-                
-                <div class="trophy-grid">
-                    <div class="trophy-card">
-                        <div class="trophy-icon">🎓</div>
-                        <h4 class="font-bold">B.Tech Graduate</h4>
-                        <p class="text-xs text-gray-500 mt-2">Malla Reddy University</p>
-                        <p class="text-xs text-[#E07A5F]">July 2025</p>
-                    </div>
-                    <div class="trophy-card">
-                        <div class="trophy-icon">📜</div>
-                        <h4 class="font-bold">NxtWave Intensive</h4>
-                        <p class="text-xs text-gray-500 mt-2">Industry 4.0 Tech Stack</p>
-                        <p class="text-xs text-[#E07A5F]">Completed</p>
-                    </div>
-                    <div class="trophy-card">
-                        <div class="trophy-icon">💻</div>
-                        <h4 class="font-bold">AI Intern</h4>
-                        <p class="text-xs text-gray-500 mt-2">Edunet Foundation</p>
-                        <p class="text-xs text-[#E07A5F]">Summer 2025</p>
-                    </div>
-                    <div class="trophy-card border-dashed">
-                        <div class="trophy-icon text-gray-600">?</div>
-                        <h4 class="font-bold text-gray-500">Next Achievement</h4>
-                        <p class="text-xs text-gray-500 mt-2">Loading...</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="glass-panel text-center">
-                <h2 class="text-4xl font-bold mb-6 text-white">ESTABLISH UPLINK</h2>
-                <p class="text-gray-400 mb-8 max-w-lg mx-auto">
-                    Currently available for full-time roles in AI & Machine Learning. 
-                    Let's build the future together.
+        <section class="level-section" id="sector-1">
+            <div class="text-center max-w-4xl px-4">
+                <p class="text-neon-blue font-mono mb-4 animate-pulse">Incoming Transmission...</p>
+                <h1 class="text-6xl md:text-8xl font-black mb-6 glitch-text">VAISHNAV MURIKI</h1>
+                <h2 class="text-2xl md:text-3xl text-gray-300 mb-8 font-light">
+                    CLASS: <span class="highlight-purple">AI ARCHITECT</span> | LEVEL: <span class="highlight-gold">MAX</span>
+                </h2>
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                    Welcome to my digital construct. I specialize in <span class="text-white">Generative AI</span>, <span class="text-white">Predictive Modeling</span>, and <span class="text-white">Immersive Systems</span>. 
+                    Scroll down to decrypt my mission logs and acquired artifacts.
                 </p>
-                <div class="flex flex-wrap justify-center gap-6">
-                    <a href="mailto:vaishnav.muriki.work@gmail.com" class="cyber-btn">SEND TRANSMISSION</a>
-                    <a href="https://www.linkedin.com/in/vaishnav--m/" target="_blank" class="cyber-btn">LINKEDIN</a>
-                    <a href="https://github.com/vaishpaaa" target="_blank" class="cyber-btn">GITHUB</a>
-                    <a href="https://vaishpaaa.github.io/" target="_blank" class="cyber-btn">PORTFOLIO</a>
-                </div>
-                <div class="mt-12 text-xs text-gray-600 font-mono">
-                    SYSTEM ID: VM-2026 // ALL RIGHTS RESERVED
+                <a href="#sector-3" class="warp-btn">INITIATE MISSION</a>
+            </div>
+        </section>
+
+        <section class="level-section" id="sector-2">
+            <div class="w-full max-w-6xl px-4">
+                <h2 class="text-4xl font-bold mb-12 text-center"><span class="highlight-blue">01.</span> THE ARMOURY</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    
+                    <div class="data-crate crate-blue">
+                        <h3 class="text-2xl mb-4 text-white">CORE LANGUAGES</h3>
+                        <ul class="space-y-2 font-mono text-gray-300">
+                            <li>> Python (Mastery)</li>
+                            <li>> SQL / NoSQL</li>
+                            <li>> JavaScript (ES6+)</li>
+                            <li>> C++ Algorithms</li>
+                        </ul>
+                    </div>
+
+                    <div class="data-crate crate-blue">
+                        <h3 class="text-2xl mb-4 text-white">AI MODULES</h3>
+                        <ul class="space-y-2 font-mono text-gray-300">
+                            <li>> TensorFlow / Keras</li>
+                            <li>> PyTorch</li>
+                            <li>> OpenCV (Vision)</li>
+                            <li>> NLTK / TextBlob (NLP)</li>
+                        </ul>
+                    </div>
+
+                    <div class="data-crate crate-blue">
+                        <h3 class="text-2xl mb-4 text-white">CLOUD GEAR</h3>
+                        <ul class="space-y-2 font-mono text-gray-300">
+                            <li>> Oracle OCI GenAI</li>
+                            <li>> AWS Machine Learning</li>
+                            <li>> Google Vertex AI</li>
+                            <li>> Docker Containers</li>
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         </section>
+
+        <section class="level-section" id="sector-3">
+            <div class="w-full px-4 flex flex-col items-center">
+                <h2 class="text-4xl font-bold mb-12"><span class="highlight-purple">02.</span> MISSION LOGS</h2>
+                <p class="mb-8 text-gray-400 font-mono">HOVER TO DECRYPT PROJECT FILES</p>
+                
+                <div class="mission-grid">
+                    
+                    <div class="data-crate crate-purple">
+                        <div class="absolute top-2 right-2 text-xs border border-purple-500 px-2 text-purple-400">CLASS: PREDICTIVE</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">EV FORECAST ENGINE</h3>
+                        <p class="text-sm text-gray-400 mb-4">TECH: Random Forest // Time Series</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            Developed a predictive model to forecast Electric Vehicle adoption rates by county. Utilized historical data and rolling window features to predict future trends.
+                        </p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">Python</span>
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">Sklearn</span>
+                        </div>
+                    </div>
+
+                    <div class="data-crate crate-purple">
+                        <div class="absolute top-2 right-2 text-xs border border-purple-500 px-2 text-purple-400">CLASS: VISION</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">EMOTION DETECTOR</h3>
+                        <p class="text-sm text-gray-400 mb-4">TECH: CNN // OpenCV // Keras</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            Real-time facial analysis system. Detects 7 core human emotions via webcam feed using deep learning convolutional networks.
+                        </p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">Deep Learning</span>
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">CV</span>
+                        </div>
+                    </div>
+
+                    <div class="data-crate crate-purple">
+                        <div class="absolute top-2 right-2 text-xs border border-purple-500 px-2 text-purple-400">CLASS: ALGORITHM</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">CINEMA RECSYS</h3>
+                        <p class="text-sm text-gray-400 mb-4">TECH: Cosine Similarity // NLP</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            Content-based filtering system that recommends movies based on plot keywords, genres, and cast, using vector space modeling.
+                        </p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">Pandas</span>
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">Streamlit</span>
+                        </div>
+                    </div>
+
+                    <div class="data-crate crate-purple">
+                        <div class="absolute top-2 right-2 text-xs border border-purple-500 px-2 text-purple-400">CLASS: INTELLIGENCE</div>
+                        <h3 class="text-2xl font-bold text-white mb-2">NEWS INTEL ANALYZER</h3>
+                        <p class="text-sm text-gray-400 mb-4">TECH: TextBlob // Newspaper3k</p>
+                        <p class="text-gray-300 text-sm mb-4">
+                            Automated bot that scrapes news URLs, summarizes content, and performs sentiment analysis to gauge public opinion polarity.
+                        </p>
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">NLP</span>
+                            <span class="text-xs bg-purple-900 px-2 py-1 rounded">Tkinter GUI</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="level-section" id="sector-4">
+            <div class="w-full px-4 flex flex-col items-center">
+                <h2 class="text-4xl font-bold mb-12"><span class="highlight-gold">03.</span> TREASURE ROOM</h2>
+                <p class="mb-8 text-gray-400 font-mono">CONFIRMED CERTIFICATIONS</p>
+                
+                <div class="cert-grid">
+                    
+                    <div class="data-crate crate-gold text-center">
+                        <div class="text-4xl mb-4">🏆</div>
+                        <h4 class="text-xl font-bold text-white">ORACLE CERTIFIED</h4>
+                        <p class="text-neon-gold text-sm font-bold mt-1">Generative AI Professional</p>
+                        <p class="text-gray-500 text-xs mt-4">Issued: July 2025</p>
+                        <p class="text-gray-400 text-xs mt-2">Authority: Oracle Cloud</p>
+                    </div>
+
+                    <div class="data-crate crate-gold text-center">
+                        <div class="text-4xl mb-4">☁️</div>
+                        <h4 class="text-xl font-bold text-white">AWS EDUCATE</h4>
+                        <p class="text-neon-gold text-sm font-bold mt-1">Machine Learning Foundations</p>
+                        <p class="text-gray-500 text-xs mt-4">Issued: Aug 2025</p>
+                        <p class="text-gray-400 text-xs mt-2">Authority: AWS</p>
+                    </div>
+
+                    <div class="data-crate crate-gold text-center">
+                        <div class="text-4xl mb-4">☁️</div>
+                        <h4 class="text-xl font-bold text-white">AWS ACADEMY</h4>
+                        <p class="text-neon-gold text-sm font-bold mt-1">Cloud Foundation</p>
+                        <p class="text-gray-500 text-xs mt-4">Issued: 2023</p>
+                        <p class="text-gray-400 text-xs mt-2">Authority: AICTE</p>
+                    </div>
+
+                    <div class="data-crate crate-gold text-center">
+                        <div class="text-4xl mb-4">💻</div>
+                        <h4 class="text-xl font-bold text-white">NXTWAVE FELLOW</h4>
+                        <p class="text-neon-gold text-sm font-bold mt-1">Responsive & Static Websites</p>
+                        <p class="text-gray-500 text-xs mt-4">Issued: Jun/Jul 2025</p>
+                        <p class="text-gray-400 text-xs mt-2">Authority: NxtWave</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="level-section" id="sector-5">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold mb-6">END OF TRANSMISSION</h2>
+                <p class="text-xl text-gray-400 mb-8">Ready to deploy me on your next mission?</p>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <a href="mailto:vaishnav.muriki.work@gmail.com" class="warp-btn">SEND COMMS</a>
+                    <a href="https://www.linkedin.com/in/vaishnav--m/" class="warp-btn">LINKEDIN</a>
+                    <a href="https://github.com/vaishpaaa" class="warp-btn">GITHUB</a>
+                </div>
+                <footer class="mt-12 text-gray-600 font-mono text-sm">
+                    SYSTEM ID: VM-2026 // HYDERABAD NODE
+                </footer>
+            </div>
+        </section>
+
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -347,160 +334,149 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <script>
-        // --- 1. LOADING SCREEN LOGIC ---
-        const loaderFill = document.getElementById('loaderFill');
-        const loader = document.getElementById('loader');
-        
-        let loadProgress = 0;
-        const loadInterval = setInterval(() => {
-            loadProgress += Math.random() * 5;
-            if(loadProgress >= 100) {
-                loadProgress = 100;
-                clearInterval(loadInterval);
-                // Hide loader
-                gsap.to(loader, {
-                    opacity: 0,
-                    duration: 1,
-                    onComplete: () => loader.style.display = 'none'
-                });
-            }
-            loaderFill.style.width = loadProgress + "%";
-        }, 30);
+        // --- 1. MISSION TIMER LOGIC ---
+        let seconds = 0;
+        setInterval(() => {
+            seconds++;
+            let date = new Date(0);
+            date.setSeconds(seconds); 
+            document.getElementById('timer').innerText = date.toISOString().substr(14, 5);
+        }, 1000);
 
-        // --- 2. THREE.JS SCENE SETUP ---
+        // --- 2. THREE.JS COLORFUL UNIVERSE ---
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050505, 0.002); // Darker fog for cyber look
+        // Fog changes color based on scroll later, starts dark
+        scene.fog = new THREE.FogExp2(0x050505, 0.002);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // --- 3. OBJECTS ---
-        
-        // A. The Cyber Grid Floor
-        const gridHelper = new THREE.GridHelper(200, 50, 0x00f3ff, 0x111111);
-        gridHelper.position.y = -10;
-        gridHelper.scale.set(4, 1, 4);
-        scene.add(gridHelper);
+        // PARTICLES: Multi-colored
+        const geometry = new THREE.BufferGeometry();
+        const count = 4000;
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
 
-        // B. Ceiling Grid (Mirror)
-        const gridHelperTop = new THREE.GridHelper(200, 50, 0xE07A5F, 0x111111);
-        gridHelperTop.position.y = 10;
-        gridHelperTop.scale.set(4, 1, 4);
-        scene.add(gridHelperTop);
+        for(let i = 0; i < count * 3; i+=3) {
+            // Position
+            positions[i] = (Math.random() - 0.5) * 400;     // x
+            positions[i+1] = (Math.random() - 0.5) * 400;   // y
+            positions[i+2] = (Math.random() - 0.5) * 1000;  // z
 
-        // C. Floating Particles
-        const particlesGeo = new THREE.BufferGeometry();
-        const particlesCount = 2000;
-        const posArray = new Float32Array(particlesCount * 3);
-        
-        for(let i=0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 300; // Wide spread
+            // Color: Mix of Blue, Purple, Gold
+            const colorType = Math.random();
+            if(colorType > 0.6) {
+                // Purple
+                colors[i] = 0.7; colors[i+1] = 0.1; colors[i+2] = 1.0; 
+            } else if (colorType > 0.3) {
+                // Blue
+                colors[i] = 0.0; colors[i+1] = 0.9; colors[i+2] = 1.0;
+            } else {
+                // Gold
+                colors[i] = 1.0; colors[i+1] = 0.9; colors[i+2] = 0.1;
+            }
         }
-        particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particlesMat = new THREE.PointsMaterial({
-            size: 0.2, color: 0xffffff, transparent: true, opacity: 0.8
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.5,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9
         });
-        const starField = new THREE.Points(particlesGeo, particlesMat);
+
+        const starField = new THREE.Points(geometry, material);
         scene.add(starField);
 
-        // D. Floating Geometry (Abstract Data Blocks)
-        const geometryGroup = new THREE.Group();
-        const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-        const edgesGeo = new THREE.EdgesGeometry(boxGeo);
+        // GEOMETRIC SHAPES
+        const shapeGroup = new THREE.Group();
+        const geometries = [
+            new THREE.IcosahedronGeometry(1, 0),
+            new THREE.OctahedronGeometry(1, 0),
+            new THREE.TetrahedronGeometry(1, 0)
+        ];
 
-        for (let i = 0; i < 30; i++) {
-            const material = new THREE.LineBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.4 });
-            const mesh = new THREE.LineSegments(edgesGeo, material);
-            mesh.position.set(
-                (Math.random() - 0.5) * 40,
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 400 - 100 // Mostly in front
+        for(let i=0; i<40; i++) {
+            const geom = geometries[Math.floor(Math.random() * geometries.length)];
+            const edges = new THREE.EdgesGeometry(geom);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 }));
+            
+            line.position.set(
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 800
             );
-            mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
-            geometryGroup.add(mesh);
+            line.scale.setScalar(Math.random() * 3 + 1);
+            shapeGroup.add(line);
         }
-        scene.add(geometryGroup);
+        scene.add(shapeGroup);
 
-        camera.position.z = 10;
+        camera.position.z = 100;
 
-        // --- 4. ANIMATION & SCROLL ---
-        gsap.registerPlugin(ScrollTrigger);
-
-        // HUD Elements Update
-        const coordDisplay = document.getElementById('coord-display');
-        const velDisplay = document.getElementById('velocity-val');
-        let lastScrollTop = 0;
-
-        // Render Loop
+        // ANIMATION LOOP
         const clock = new THREE.Clock();
         const tick = () => {
-            const time = clock.getElapsedTime();
-            
-            // Move grid to simulate infinite forward motion
-            const gridSpeed = 0.5;
-            gridHelper.position.z = (time * 5) % 4; // Loop position
-            gridHelperTop.position.z = (time * 5) % 4;
-
-            // Rotate objects
-            geometryGroup.rotation.z = time * 0.1;
-            starField.rotation.z = time * 0.05;
-
-            // HUD Random Numbers
-            if(Math.random() > 0.9) {
-                coordDisplay.innerText = `X:${Math.floor(Math.random()*99)} Y:${Math.floor(Math.random()*99)} Z:${Math.floor(camera.position.z)}`;
-            }
-
+            const elapsed = clock.getElapsedTime();
+            starField.rotation.z = elapsed * 0.05;
+            shapeGroup.rotation.y = elapsed * 0.1;
+            shapeGroup.rotation.z = elapsed * 0.05;
             renderer.render(scene, camera);
-            window.requestAnimationFrame(tick);
-        }
+            requestAnimationFrame(tick);
+        };
         tick();
 
-        // Scroll Animations
-        const sections = document.querySelectorAll('.section');
+        // --- 3. SCROLL & SECTOR LOGIC ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Update Sector Name in HUD
+        const sectors = [
+            { id: "sector-1", name: "HOME BASE" },
+            { id: "sector-2", name: "THE ARMOURY" },
+            { id: "sector-3", name: "MISSION LOGS" },
+            { id: "sector-4", name: "TREASURE ROOM" },
+            { id: "sector-5", name: "COMMS" }
+        ];
+
+        sectors.forEach(sector => {
+            ScrollTrigger.create({
+                trigger: `#${sector.id}`,
+                start: "top center",
+                end: "bottom center",
+                onEnter: () => {
+                    document.getElementById('sector-name').innerText = sector.name;
+                    gsap.fromTo("#sector-name", {opacity:0, scale: 2}, {opacity:1, scale:1, duration:0.5});
+                },
+                onEnterBack: () => {
+                    document.getElementById('sector-name').innerText = sector.name;
+                }
+            });
+        });
+
+        // Camera Fly-Through
+        const totalScrollHeight = document.body.scrollHeight - window.innerHeight;
         
-        // Update velocity meter based on scroll speed
         window.addEventListener('scroll', () => {
-            const st = window.pageYOffset || document.documentElement.scrollTop;
-            const speed = Math.abs(st - lastScrollTop);
-            velDisplay.innerText = speed;
-            lastScrollTop = st;
+            const scrollY = window.scrollY;
+            const progress = scrollY / totalScrollHeight;
+            
+            // Move camera deep into space
+            camera.position.z = 100 - (progress * 500); 
+            
+            // Rotate camera slightly
+            camera.rotation.z = progress * Math.PI * 0.5;
         });
 
-        sections.forEach((section, index) => {
-            // 1. Fade Content In
-            gsap.to(section.querySelector('.glass-panel'), {
-                opacity: 1,
-                y: 0,
-                duration: 1,
-                scrollTrigger: {
-                    trigger: section,
-                    start: "top 70%",
-                    end: "bottom 40%",
-                    toggleActions: "play reverse play reverse",
-                }
-            });
-
-            // 2. Fly Camera Forward
-            gsap.to(camera.position, {
-                z: -50 * (index + 1), 
-                ease: "none",
-                scrollTrigger: {
-                    trigger: section,
-                    start: "top bottom",
-                    end: "bottom top",
-                    scrub: 1
-                }
-            });
-        });
-
-        // Resize
+        // Resize handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
     </script>
 </body>
 </html>
