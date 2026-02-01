@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaishnav Muriki | AI Engineer Portfolio</title>
+    <title>Vaishnav Muriki | Neural Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,392 +12,395 @@
         :root {
             --neon-blue: #00f3ff;
             --neon-purple: #bc13fe;
-            --neon-gold: #fcee0a;
+            --neon-green: #0aff0a;
             --bg-dark: #050505;
-            --glass-bg: rgba(10, 10, 15, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(10, 15, 20, 0.75);
         }
         
         body {
             margin: 0;
-            padding: 0;
             background-color: var(--bg-dark);
             color: white;
             font-family: 'Rajdhani', sans-serif;
             overflow-x: hidden;
+            cursor: none; /* Custom cursor */
         }
 
-        /* --- 3D CANVAS BACKGROUND --- */
+        /* --- CUSTOM CURSOR --- */
+        #cursor {
+            width: 20px; height: 20px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            position: fixed; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+            mix-blend-mode: difference;
+        }
+        #cursor-dot {
+            width: 4px; height: 4px; background: var(--neon-blue);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        /* --- 3D CANVAS --- */
         #canvas-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100vh;
-            z-index: -1;
-            background: radial-gradient(circle at center, #1a0b2e 0%, #000000 80%);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1;
+            background: radial-gradient(circle at center, #11001c 0%, #000000 90%);
         }
 
-        /* --- TYPOGRAPHY --- */
-        h1, h2, h3, .sci-fi-font { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
-        .mono-font { font-family: 'Share Tech Mono', monospace; }
-
-        .text-glow-blue { text-shadow: 0 0 10px var(--neon-blue); color: var(--neon-blue); }
-        .text-glow-purple { text-shadow: 0 0 10px var(--neon-purple); color: var(--neon-purple); }
-        .text-glow-gold { text-shadow: 0 0 10px var(--neon-gold); color: var(--neon-gold); }
-
-        /* --- HUD ELEMENTS --- */
-        .hud-line {
-            position: fixed;
-            background: var(--neon-blue);
-            z-index: 50;
-            opacity: 0.3;
-        }
-        .hud-left { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); width: 2px; height: 200px; background: linear-gradient(to bottom, transparent, var(--neon-blue), transparent); }
-        .hud-right { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); width: 2px; height: 200px; background: linear-gradient(to bottom, transparent, var(--neon-purple), transparent); }
-
-        /* --- CARDS & CONTAINERS --- */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-left: 4px solid var(--neon-blue);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            position: relative;
-            transition: all 0.3s ease;
-            clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-            border-color: var(--neon-blue);
-        }
-
-        .glass-card.purple-theme { border-left-color: var(--neon-purple); }
-        .glass-card.purple-theme:hover { border-color: var(--neon-purple); box-shadow: 0 0 20px rgba(188, 19, 254, 0.2); }
-
-        .glass-card.gold-theme { border-left-color: var(--neon-gold); }
-        .glass-card.gold-theme:hover { border-color: var(--neon-gold); box-shadow: 0 0 20px rgba(252, 238, 10, 0.2); }
-
-        /* --- TAGS --- */
-        .tech-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            margin: 0 4px 4px 0;
-            border: 1px solid rgba(255,255,255,0.2);
-            font-size: 0.8rem;
-            font-family: 'Share Tech Mono';
-            color: #ccc;
-            background: rgba(0,0,0,0.5);
-        }
-
-        /* --- BUTTONS --- */
-        .cyber-btn {
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            padding: 10px 25px;
-            font-family: 'Orbitron';
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-        }
-        .cyber-btn:hover {
-            background: var(--neon-blue);
-            color: black;
-            box-shadow: 0 0 15px var(--neon-blue);
-        }
-
-        /* --- NAVIGATION --- */
-        nav {
-            position: fixed;
-            top: 0; width: 100%;
+        /* --- TERMINAL --- */
+        .terminal-window {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--neon-green);
+            font-family: 'Share Tech Mono', monospace;
             padding: 20px;
-            z-index: 100;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(10, 255, 10, 0.2);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            width: 100%;
         }
-        .nav-link { color: #888; margin-left: 20px; text-decoration: none; font-family: 'Orbitron'; font-size: 0.8rem; transition: 0.3s; }
-        .nav-link:hover, .nav-link.active { color: white; text-shadow: 0 0 5px white; }
+        .terminal-output { color: #ccc; min-height: 100px; margin-bottom: 10px; white-space: pre-wrap; }
+        .terminal-input-line { display: flex; color: var(--neon-green); }
+        .terminal-input { 
+            background: transparent; border: none; color: var(--neon-green); 
+            outline: none; flex-grow: 1; font-family: inherit; font-size: 1rem;
+        }
 
-        /* Mobile Adjustments */
-        @media(max-width: 768px) {
-            h1 { font-size: 2.5rem !important; }
-            .glass-card { padding: 1.5rem; clip-path: none; border: 1px solid rgba(255,255,255,0.1); border-left-width: 4px; }
+        /* --- SKILL SPHERE (TagCloud) --- */
+        .tagcloud { display: inline-block; top: 0; left: 0; font-family: 'Orbitron'; font-weight: bold; letter-spacing: 1px; }
+        .tagcloud--item { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); padding: 5px; }
+        .tagcloud--item:hover { color: var(--neon-green); cursor: pointer; }
+
+        /* --- SECTIONS --- */
+        .glass-panel {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem; position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+            transition: 0.3s;
         }
+        .glass-panel:hover { border-color: var(--neon-purple); box-shadow: 0 0 25px rgba(188, 19, 254, 0.2); }
+
+        /* --- GLITCH TEXT --- */
+        .glitch { position: relative; color: white; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .glitch::before { left: 2px; text-shadow: -1px 0 red; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim 3s infinite linear alternate-reverse; }
+        .glitch::after { left: -2px; text-shadow: -1px 0 blue; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2s infinite linear alternate-reverse; }
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 30px, 0); }
+            20% { clip: rect(80px, 9999px, 100px, 0); }
+            40% { clip: rect(10px, 9999px, 80px, 0); }
+            60% { clip: rect(60px, 9999px, 50px, 0); }
+            80% { clip: rect(90px, 9999px, 10px, 0); }
+            100% { clip: rect(20px, 9999px, 70px, 0); }
+        }
+
+        /* --- SOUND TOGGLE --- */
+        .sound-toggle {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 50px; height: 50px;
+            border: 1px solid var(--neon-blue);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--neon-blue);
+            cursor: pointer; z-index: 100;
+            background: rgba(0,0,0,0.5);
+            transition: 0.3s;
+        }
+        .sound-toggle:hover { background: var(--neon-blue); color: black; box-shadow: 0 0 20px var(--neon-blue); }
+
     </style>
 </head>
 <body>
 
+    <div id="cursor"></div>
+    <div id="cursor-dot"></div>
+
     <div id="canvas-container"></div>
 
-    <div class="hud-left"></div>
-    <div class="hud-right"></div>
+    <div class="sound-toggle" id="soundBtn" onclick="toggleAudio()">
+        <i class="fas fa-volume-mute"></i>
+    </div>
 
-    <nav>
-        <div class="text-xl font-bold tracking-widest text-white">VM<span class="text-neon-blue">.AI</span></div>
-        <div class="hidden md:block">
-            <a href="#hero" class="nav-link active">HOME</a>
-            <a href="#projects" class="nav-link">PROJECTS</a>
-            <a href="#certs" class="nav-link">CERTIFICATIONS</a>
-            <a href="#contact" class="nav-link">CONTACT</a>
+    <nav class="fixed top-0 w-full p-6 flex justify-between items-center z-50 bg-gradient-to-b from-black/90 to-transparent">
+        <div class="text-2xl font-bold font-mono text-neon-blue">VM_SYSTEM_V3.0</div>
+        <div class="hidden md:flex gap-8">
+            <a href="#terminal" class="hover:text-neon-green transition font-mono">[ TERMINAL ]</a>
+            <a href="#projects" class="hover:text-neon-purple transition font-mono">[ MISSIONS ]</a>
+            <a href="#timeline" class="hover:text-neon-blue transition font-mono">[ TIMELINE ]</a>
         </div>
     </nav>
 
     <main class="container mx-auto px-4 pt-32 pb-20 relative z-10">
 
-        <section id="hero" class="min-h-[80vh] flex flex-col justify-center items-start mb-20">
-            <p class="mono-font text-neon-blue mb-2 animate-pulse">:: SYSTEM ONLINE ::</p>
-            <h1 class="text-6xl md:text-8xl font-black mb-4 leading-tight">
-                VAISHNAV <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">MURIKI</span>
-            </h1>
-            <h2 class="text-2xl md:text-3xl text-gray-300 mb-8 font-light sci-fi-font">
-                AI ENGINEER <span class="text-gray-600 mx-2">//</span> GAME DEV <span class="text-gray-600 mx-2">//</span> INNOVATOR
-            </h2>
-            <p class="text-gray-400 max-w-2xl text-lg mb-10 border-l-2 border-gray-700 pl-4">
-                Specializing in <strong class="text-white">Generative AI</strong>, <strong class="text-white">Computer Vision</strong>, and <strong class="text-white">Predictive Analytics</strong>. 
-                I build intelligent systems that bridge the gap between data and human experience.
-            </p>
-            <div class="flex gap-4">
-                <a href="#projects" class="cyber-btn">View Missions</a>
-                <a href="#contact" class="cyber-btn" style="border-color: var(--neon-purple); color: var(--neon-purple);">Contact Me</a>
-            </div>
-        </section>
-
-        <section id="projects" class="mb-32">
-            <div class="flex items-center gap-4 mb-12">
-                <div class="h-1 w-10 bg-neon-blue"></div>
-                <h2 class="text-4xl font-bold">MISSION LOGS</h2>
-                <div class="mono-font text-gray-500 text-sm ml-auto">DETECTED: 4 ARCHIVES</div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <section class="min-h-screen flex flex-col md:flex-row items-center justify-between">
+            <div class="md:w-1/2">
+                <p class="text-neon-green font-mono mb-2">Login: ADMIN // Status: ONLINE</p>
+                <h1 class="text-7xl font-black mb-4 glitch" data-text="VAISHNAV MURIKI">VAISHNAV MURIKI</h1>
+                <h2 class="text-3xl text-gray-400 mb-8 font-mono typing-effect">AI ENGINEER | CREATIVE CODER</h2>
                 
-                <article class="glass-card">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-2xl font-bold text-white">EV Adoption Forecasting</h3>
-                        <i class="fas fa-chart-line text-2xl text-neon-blue"></i>
-                    </div>
-                    <p class="text-gray-300 mb-4 text-sm leading-relaxed">
-                        A predictive analytics engine designed to forecast Electric Vehicle adoption rates across different counties. 
-                        Engineered features like <span class="text-neon-blue">Lag Variables</span> and <span class="text-neon-blue">Rolling Windows</span> to capture temporal trends.
-                    </p>
-                    <div class="mb-6">
-                        <div class="text-xs text-gray-500 mb-2 mono-font">TECH STACK</div>
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">Random Forest Regressor</span>
-                        <span class="tech-tag">Time Series</span>
-                        <span class="tech-tag">Pandas</span>
-                    </div>
-                    <div class="border-t border-gray-700 pt-4 flex justify-between items-center">
-                        <span class="text-xs text-green-400 mono-font"><i class="fas fa-check-circle"></i> MODEL ACCURACY: HIGH</span>
-                        <a href="#" class="text-sm text-neon-blue hover:text-white transition">CODE <i class="fas fa-chevron-right text-xs"></i></a>
-                    </div>
-                </article>
+                <div class="flex gap-4">
+                    <button onclick="document.getElementById('terminal-input').focus()" class="border border-neon-green text-neon-green px-8 py-3 font-mono hover:bg-neon-green hover:text-black transition uppercase">
+                        <i class="fas fa-terminal"></i> Access Terminal
+                    </button>
+                    <a href="#projects" class="border border-neon-purple text-neon-purple px-8 py-3 font-mono hover:bg-neon-purple hover:text-black transition uppercase">
+                        <i class="fas fa-rocket"></i> Launch Projects
+                    </a>
+                </div>
+            </div>
 
-                <article class="glass-card purple-theme">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-2xl font-bold text-white">Face Emotion Detector</h3>
-                        <i class="fas fa-eye text-2xl text-neon-purple"></i>
-                    </div>
-                    <p class="text-gray-300 mb-4 text-sm leading-relaxed">
-                        Real-time computer vision system capable of detecting 7 distinct human emotions via webcam. 
-                        Utilizes a deep <span class="text-neon-purple">Convolutional Neural Network (CNN)</span> trained on the FER2013 dataset.
-                    </p>
-                    <div class="mb-6">
-                        <div class="text-xs text-gray-500 mb-2 mono-font">TECH STACK</div>
-                        <span class="tech-tag">Deep Learning</span>
-                        <span class="tech-tag">Keras / TensorFlow</span>
-                        <span class="tech-tag">OpenCV</span>
-                        <span class="tech-tag">Haar Cascades</span>
-                    </div>
-                    <div class="border-t border-gray-700 pt-4 flex justify-between items-center">
-                        <span class="text-xs text-green-400 mono-font"><i class="fas fa-video"></i> REAL-TIME PROCESSING</span>
-                        <a href="#" class="text-sm text-neon-purple hover:text-white transition">CODE <i class="fas fa-chevron-right text-xs"></i></a>
-                    </div>
-                </article>
+            <div class="md:w-1/2 h-[500px] flex items-center justify-center relative" id="skill-container">
+                </div>
+        </section>
 
-                <article class="glass-card">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-2xl font-bold text-white">Cinema RecSys</h3>
-                        <i class="fas fa-film text-2xl text-neon-blue"></i>
-                    </div>
-                    <p class="text-gray-300 mb-4 text-sm leading-relaxed">
-                        Content-based recommendation engine. Analyzes movie metadata (plot, genres, cast) and calculates 
-                        similarity scores using <span class="text-neon-blue">Cosine Similarity</span> to suggest personalized films.
-                    </p>
-                    <div class="mb-6">
-                        <div class="text-xs text-gray-500 mb-2 mono-font">TECH STACK</div>
-                        <span class="tech-tag">NLP</span>
-                        <span class="tech-tag">Scikit-Learn</span>
-                        <span class="tech-tag">Streamlit UI</span>
-                        <span class="tech-tag">Vectorization</span>
-                    </div>
-                    <div class="border-t border-gray-700 pt-4 flex justify-between items-center">
-                        <span class="text-xs text-green-400 mono-font"><i class="fas fa-database"></i> DATASET: TMDB 5000</span>
-                        <a href="#" class="text-sm text-neon-blue hover:text-white transition">CODE <i class="fas fa-chevron-right text-xs"></i></a>
-                    </div>
-                </article>
-
-                <article class="glass-card purple-theme">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-2xl font-bold text-white">News Intel Analyzer</h3>
-                        <i class="fas fa-newspaper text-2xl text-neon-purple"></i>
-                    </div>
-                    <p class="text-gray-300 mb-4 text-sm leading-relaxed">
-                        Automated intelligence tool that scrapes news URLs, generates concise summaries, and performs 
-                        <span class="text-neon-purple">Sentiment Analysis</span> (Polarity/Subjectivity) on the text.
-                    </p>
-                    <div class="mb-6">
-                        <div class="text-xs text-gray-500 mb-2 mono-font">TECH STACK</div>
-                        <span class="tech-tag">Newspaper3k</span>
-                        <span class="tech-tag">TextBlob (NLP)</span>
-                        <span class="tech-tag">Tkinter GUI</span>
-                        <span class="tech-tag">Python</span>
-                    </div>
-                    <div class="border-t border-gray-700 pt-4 flex justify-between items-center">
-                        <span class="text-xs text-green-400 mono-font"><i class="fas fa-robot"></i> AUTOMATED AGENT</span>
-                        <a href="#" class="text-sm text-neon-purple hover:text-white transition">CODE <i class="fas fa-chevron-right text-xs"></i></a>
-                    </div>
-                </article>
-
+        <section id="terminal" class="py-20 flex justify-center">
+            <div class="terminal-window">
+                <div class="border-b border-gray-700 pb-2 mb-4 flex justify-between text-xs text-gray-500">
+                    <span>BASH SHELL - v2.0.26</span>
+                    <span>usr: vaishnav_guest</span>
+                </div>
+                <div class="terminal-output" id="terminal-output">
+                    Welcome to the VaishnaV_OS. <br>
+                    Type <span class="text-neon-green">'help'</span> to see available commands.<br><br>
+                </div>
+                <div class="terminal-input-line">
+                    <span class="mr-2">visitor@vm-portfolio:~$</span>
+                    <input type="text" id="terminal-input" class="terminal-input" autocomplete="off" spellcheck="false">
+                </div>
             </div>
         </section>
 
-        <section id="certs" class="mb-32">
-            <div class="flex items-center gap-4 mb-12">
-                <div class="h-1 w-10 bg-neon-gold"></div>
-                <h2 class="text-4xl font-bold text-glow-gold">TREASURE ROOM</h2>
-                <div class="mono-font text-gray-500 text-sm ml-auto">ACHIEVEMENTS UNLOCKED</div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <section id="timeline" class="py-20">
+            <h2 class="text-4xl font-bold mb-12 text-center text-neon-blue glitch" data-text="MISSION TIMELINE">MISSION TIMELINE</h2>
+            <div class="relative border-l-2 border-gray-700 ml-6 md:ml-1/2 space-y-12">
                 
-                <div class="glass-card gold-theme text-center">
-                    <i class="fas fa-medal text-4xl text-neon-gold mb-4"></i>
-                    <h4 class="font-bold text-white mb-1">Oracle Certified</h4>
-                    <p class="text-xs text-neon-gold font-bold mb-4">Generative AI Professional</p>
-                    <p class="text-xs text-gray-500 mono-font">JUL 2025</p>
+                <div class="relative pl-8 md:ml-12">
+                    <span class="absolute -left-[41px] bg-black border-2 border-neon-blue w-6 h-6 rounded-full"></span>
+                    <div class="glass-panel">
+                        <span class="text-xs text-neon-blue font-mono border border-neon-blue px-2 py-1 rounded">JULY 2025</span>
+                        <h3 class="text-2xl font-bold mt-2">B.Tech Graduation</h3>
+                        <p class="text-gray-400">Malla Reddy University</p>
+                        <p class="text-sm text-gray-500 mt-2">Specialization: Artificial Intelligence & Machine Learning</p>
+                    </div>
                 </div>
 
-                <div class="glass-card gold-theme text-center">
-                    <i class="fas fa-cloud text-4xl text-neon-gold mb-4"></i>
-                    <h4 class="font-bold text-white mb-1">AWS Educate</h4>
-                    <p class="text-xs text-neon-gold font-bold mb-4">Machine Learning Foundations</p>
-                    <p class="text-xs text-gray-500 mono-font">AUG 2025</p>
+                <div class="relative pl-8 md:ml-12">
+                    <span class="absolute -left-[41px] bg-black border-2 border-neon-green w-6 h-6 rounded-full"></span>
+                    <div class="glass-panel">
+                        <span class="text-xs text-neon-green font-mono border border-neon-green px-2 py-1 rounded">SUMMER 2025</span>
+                        <h3 class="text-2xl font-bold mt-2">AI & Green Skills Intern</h3>
+                        <p class="text-gray-400">Edunet Foundation</p>
+                        <p class="text-sm text-gray-500 mt-2">Deployed AI models for sustainable energy optimization.</p>
+                    </div>
                 </div>
 
-                <div class="glass-card gold-theme text-center">
-                    <i class="fas fa-laptop-code text-4xl text-neon-gold mb-4"></i>
-                    <h4 class="font-bold text-white mb-1">NxtWave Fellow</h4>
-                    <p class="text-xs text-neon-gold font-bold mb-4">Responsive & Static Websites</p>
-                    <p class="text-xs text-gray-500 mono-font">JUN 2025</p>
-                </div>
-
-                <div class="glass-card gold-theme text-center">
-                    <i class="fas fa-university text-4xl text-neon-gold mb-4"></i>
-                    <h4 class="font-bold text-white mb-1">AWS Academy</h4>
-                    <p class="text-xs text-neon-gold font-bold mb-4">Cloud Foundation</p>
-                    <p class="text-xs text-gray-500 mono-font">AICTE 2023</p>
+                <div class="relative pl-8 md:ml-12">
+                    <span class="absolute -left-[41px] bg-black border-2 border-neon-purple w-6 h-6 rounded-full"></span>
+                    <div class="glass-panel">
+                        <span class="text-xs text-neon-purple font-mono border border-neon-purple px-2 py-1 rounded">2025 - PRESENT</span>
+                        <h3 class="text-2xl font-bold mt-2">Freelance AI Developer</h3>
+                        <p class="text-gray-400">Startup Collaboration</p>
+                        <p class="text-sm text-gray-500 mt-2">Developing custom AI bots and predictive models for emerging tech startups.</p>
+                    </div>
                 </div>
 
             </div>
         </section>
 
-        <section id="contact" class="text-center max-w-2xl mx-auto">
-            <h2 class="text-4xl font-bold mb-6">ESTABLISH UPLINK</h2>
-            <p class="text-gray-400 mb-8">
-                I am currently open to new opportunities in AI/ML and Game Development. 
-                Initialize a conversation below.
-            </p>
-            <div class="flex justify-center gap-6 flex-wrap">
-                <a href="mailto:vaishnav.muriki.work@gmail.com" class="cyber-btn">
-                    <i class="fas fa-envelope"></i> Email
-                </a>
-                <a href="https://www.linkedin.com/in/vaishnav--m/" target="_blank" class="cyber-btn">
-                    <i class="fab fa-linkedin"></i> LinkedIn
-                </a>
-                <a href="https://github.com/vaishpaaa" target="_blank" class="cyber-btn">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
+        <section id="projects" class="py-20">
+            <h2 class="text-4xl font-bold mb-12 text-center glitch" data-text="DEPLOYED SYSTEMS">DEPLOYED SYSTEMS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
+                    <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition text-neon-blue">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-neon-blue mb-2">EV Forecasting Engine</h3>
+                    <p class="text-sm text-gray-400 mb-4">Predicts Electric Vehicle adoption using Random Forest & Rolling Windows.</p>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">Python</span>
+                        <span class="bg-gray-800 px-2 py-1">Sklearn</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
+                    <h3 class="text-xl font-bold text-neon-purple mb-2">Emotion Vision</h3>
+                    <p class="text-sm text-gray-400 mb-4">Real-time facial expression detection using CNNs and OpenCV.</p>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">Keras</span>
+                        <span class="bg-gray-800 px-2 py-1">Deep Learning</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
+                    <h3 class="text-xl font-bold text-neon-green mb-2">Cinema RecSys</h3>
+                    <p class="text-sm text-gray-400 mb-4">Movie recommendation engine using Cosine Similarity on TMDB dataset.</p>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">NLP</span>
+                        <span class="bg-gray-800 px-2 py-1">Streamlit</span>
+                    </div>
+                </div>
+
+                 <div class="glass-panel group cursor-pointer" onclick="window.open('https://github.com/vaishpaaa')">
+                    <h3 class="text-xl font-bold text-white mb-2">News Intel Bot</h3>
+                    <p class="text-sm text-gray-400 mb-4">Automated news summarizer and sentiment polarity analyzer.</p>
+                    <div class="flex flex-wrap gap-2 text-xs font-mono">
+                        <span class="bg-gray-800 px-2 py-1">TextBlob</span>
+                        <span class="bg-gray-800 px-2 py-1">Automation</span>
+                    </div>
+                </div>
+
             </div>
-            <footer class="mt-20 text-gray-600 text-xs mono-font">
-                SYSTEM ID: VM-2026 // ALL RIGHTS RESERVED
-            </footer>
         </section>
 
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
+
     <script>
-        // --- THREE.JS BACKGROUND LOGIC ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        /* --- 1. AUDIO SYSTEM (UI SOUNDS) --- */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isMuted = true;
 
-        // Particles
-        const geometry = new THREE.BufferGeometry();
-        const count = 3000;
-        const positions = new Float32Array(count * 3);
-        const colors = new Float32Array(count * 3);
+        function playSound(type) {
+            if (isMuted) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
 
-        for(let i = 0; i < count * 3; i+=3) {
-            positions[i] = (Math.random() - 0.5) * 200;
-            positions[i+1] = (Math.random() - 0.5) * 200;
-            positions[i+2] = (Math.random() - 0.5) * 200;
-
-            // Random colors: Blue, Purple, Gold
-            const r = Math.random();
-            if(r > 0.6) { // Purple
-                colors[i] = 0.7; colors[i+1] = 0; colors[i+2] = 1;
-            } else if (r > 0.3) { // Blue
-                colors[i] = 0; colors[i+1] = 0.9; colors[i+2] = 1;
-            } else { // Gold
-                colors[i] = 1; colors[i+1] = 0.9; colors[i+2] = 0.1;
+            if (type === 'hover') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'click') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
             }
         }
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        function toggleAudio() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('soundBtn');
+            btn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            if(!isMuted) {
+                audioCtx.resume();
+                playSound('click');
+            }
+        }
 
-        const material = new THREE.PointsMaterial({ size: 0.3, vertexColors: true, transparent: true, opacity: 0.8 });
-        const starField = new THREE.Points(geometry, material);
-        scene.add(starField);
-
-        camera.position.z = 50;
-
-        // Mouse Parallax
-        let mouseX = 0;
-        let mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - window.innerWidth / 2) * 0.05;
-            mouseY = (e.clientY - window.innerHeight / 2) * 0.05;
+        // Add sound to buttons
+        document.querySelectorAll('button, a, .glass-panel').forEach(el => {
+            el.addEventListener('mouseenter', () => playSound('hover'));
+            el.addEventListener('click', () => playSound('click'));
         });
 
-        // Animation Loop
-        const animate = () => {
+        /* --- 2. CUSTOM CURSOR --- */
+        const cursor = document.getElementById('cursor');
+        const dot = document.getElementById('cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            dot.style.left = e.clientX + 'px';
+            dot.style.top = e.clientY + 'px';
+        });
+
+        document.addEventListener('mousedown', () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(0.8)";
+        });
+        document.addEventListener('mouseup', () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(1)";
+        });
+
+        /* --- 3. TERMINAL LOGIC --- */
+        const input = document.getElementById('terminal-input');
+        const output = document.getElementById('terminal-output');
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value.toLowerCase().trim();
+                let response = "";
+
+                if (command === 'help') {
+                    response = "AVAILABLE COMMANDS:\n> projects - List all missions\n> skills   - Show tech stack\n> contact  - Get comms info\n> clear    - Clear screen";
+                } else if (command === 'projects') {
+                    response = "LOADING PROJECTS...\n1. EV Forecasting [Python]\n2. Emotion Detector [Deep Learning]\n3. Cinema RecSys [NLP]";
+                    setTimeout(() => window.location.href = "#projects", 1000);
+                } else if (command === 'contact') {
+                    response = "EMAIL: vaishnav.muriki.work@gmail.com\nGITHUB: github.com/vaishpaaa";
+                } else if (command === 'clear') {
+                    output.innerHTML = "";
+                    this.value = "";
+                    return;
+                } else {
+                    response = `Command '${command}' not recognized. Type 'help'.`;
+                }
+
+                output.innerHTML += `\n<span class="text-neon-green">visitor@vm:~$</span> ${command}\n${response}\n`;
+                this.value = "";
+                output.scrollTop = output.scrollHeight;
+                playSound('click');
+            }
+        });
+
+        /* --- 4. 3D SKILL SPHERE (TagCloud) --- */
+        const myTags = [
+            'Python', 'TensorFlow', 'PyTorch', 'OpenCV',
+            'Generative AI', 'NLP', 'React', 'Three.js',
+            'SQL', 'Docker', 'AWS', 'Git', 'Pandas',
+            'Scikit-Learn', 'Keras', 'Oracle Cloud'
+        ];
+
+        var tagCloud = TagCloud('#skill-container', myTags, {
+            radius: 200,
+            maxSpeed: 'normal',
+            initSpeed: 'normal',
+            direction: 135,
+            keep: true
+        });
+
+        // Color the cloud
+        document.querySelector('.tagcloud').style.color = '#00f3ff';
+
+        /* --- 5. BACKGROUND THREE.JS --- */
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Starfield
+        const geometry = new THREE.BufferGeometry();
+        const count = 2000;
+        const positions = new Float32Array(count * 3);
+        for(let i=0;i<count*3;i++) positions[i]=(Math.random()-0.5)*1000;
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const material = new THREE.PointsMaterial({color: 0xffffff, size: 2});
+        const stars = new THREE.Points(geometry, material);
+        scene.add(stars);
+
+        camera.position.z = 500;
+
+        function animate() {
             requestAnimationFrame(animate);
-            starField.rotation.y += 0.001;
-            starField.rotation.x += 0.0005;
-
-            camera.position.x += (mouseX - camera.position.x) * 0.05;
-            camera.position.y += (-mouseY - camera.position.y) * 0.05;
-            camera.lookAt(scene.position);
-
+            stars.rotation.z += 0.001;
             renderer.render(scene, camera);
-        };
+        }
         animate();
 
-        // Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
